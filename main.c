@@ -29,7 +29,7 @@ int main(int argc, char **argv){
     glutDisplayFunc(on_display);
 
     /* Obavlja se OpenGL inicijalizacija. */
-    glClearColor(0, 0, 0, 0);
+    glClearColor(0.6, 0.8, 1, 0);
     glEnable(GL_DEPTH_TEST);
 
     /* Ukljucujemo normalizaciju vektora normala */
@@ -113,16 +113,16 @@ static void on_display(void){
     /*Pozicija svetla (u pitanju je direkcionalno svetlo) */
     GLfloat light_position[] = { 1, 1, 1, 0 };
     /*Ambijentalna boja svetla */
-    GLfloat light_ambient[] = { 0.1, 0.1, 0.1, 1 };
+    GLfloat light_ambient[] = { 0.1, 0.2, 0.1, 1 };
     /*Difuzna boja svetla */
     GLfloat light_diffuse[] = { 0.7, 0.7, 0.7, 1 };
     /*Spekularna boja svetla */
     GLfloat light_specular[] = { 0.9, 0.9, 0.9, 1 };
 
-    GLfloat ambient_coeffs[] = { 0.3, 0.8, 0.3, 1 };
-    GLfloat diffuse_coeffs[] = { 0.2, 0.5, 0.5, 1 };
+    GLfloat ambient_coeffs[] = { 0.5, 0.9, 0.5, 1 };
+    GLfloat diffuse_coeffs[] = { 0.5, 0.5, 0.5, 1 };
     GLfloat specular_coeffs[] = { 1, 0.1, 0.1, 1 };
-    GLfloat shininess = 30;
+    GLfloat shininess = 20;
 
     /*Brise se prethodni sadrzaj prozora */ 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -174,12 +174,12 @@ static void on_display(void){
     glTranslatef(0, 0.05, 0);
     
     glPushMatrix();
-      diffuse_coeffs[0] = 0.5;
+      diffuse_coeffs[0] = 0.6;
       diffuse_coeffs[1] = 0.0;
       
-      ambient_coeffs[0] = 0.5;
+      ambient_coeffs[0] = 0.6;
       ambient_coeffs[1] = 0.0;
-      ambient_coeffs[2] = 0.5;
+      ambient_coeffs[2] = 0.6;
       
       glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
       glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
