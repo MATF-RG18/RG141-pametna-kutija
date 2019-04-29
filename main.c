@@ -7,10 +7,11 @@
 #define TIMER_ID 0
 
 static int **matrix;
-int n, m;
+static int n, m, tren_i, tren_j;
 static void readMatrix();
 
-/*static int active_function; identifikator aktuelne funkcije */
+/* Globalne promenljive, u svrhe animacija i kretanja kamere */
+static float anim_param = 0;
 static float anim_param1 = 0;
 static float anim_param2 = 0;
 static float rotation;
@@ -43,6 +44,7 @@ int main(int argc, char **argv){
     glClearColor(1, 1, 0.8, 0);
     glEnable(GL_DEPTH_TEST);
 
+    readMatrix();
     /* Ukljucujemo normalizaciju vektora normala */
     glEnable(GL_NORMALIZE);
 
@@ -54,31 +56,93 @@ int main(int argc, char **argv){
 
 static void on_keyboard(unsigned char key, int x, int y){
     switch (key) {
+        /* Levo */
         case 'a':
         case 'A':
-            anim_param1 -= 0.2;
+            if(tren_i<n && tren_i>=0 && tren_j>=1 && tren_j<m 
+               && matrix[tren_i][tren_j-1] == 0){
+                
+                matrix[tren_i][tren_j] = 0;
+                matrix[tren_i][tren_j-1] = 5;
+                
+                anim_param1 -= 0.1;
+            }
+            else if(tren_i<n && tren_i>=0 && tren_j>=2 && tren_j<m 
+               && matrix[tren_i][tren_j-1] == 2 && matrix[tren_i][tren_j-2] == 0){
+                
+                matrix[tren_i][tren_j] = 0;
+                matrix[tren_i][tren_j-1] = 5;
+                matrix[tren_i][tren_j-2] = 2;
+                
+                anim_param1 -= 0.1;
+            }
             
-            printf("1  %f\n", anim_param1);
             glutPostRedisplay();
             break;
+        /* Desno */
         case 'd':
         case 'D':
-            anim_param1 += 0.2;
-            printf("1  %f\n", anim_param1);
+            if(tren_i>=0 && tren_i<n && tren_j>=0 && tren_j<m-1 
+               && matrix[tren_i][tren_j+1] == 0){
+                
+                matrix[tren_i][tren_j] = 0;
+                matrix[tren_i][tren_j+1] = 5;
+                
+                anim_param1 += 0.1;
+            }
+            else if(tren_i<n && tren_i>=0 && tren_j>=1 && tren_j<m-2 
+               && matrix[tren_i][tren_j+1] == 2 && matrix[tren_i][tren_j+2] == 0){
+                
+                matrix[tren_i][tren_j] = 0;
+                matrix[tren_i][tren_j+1] = 5;
+                matrix[tren_i][tren_j+2] = 2;
+                
+                anim_param1 -= 0.1;
+            }
             glutPostRedisplay();
             break;
+        /* Dole */
         case 's':
         case 'S':
-            anim_param2 += 0.2;
-            
-            printf("2  %f\n", anim_param2);
+            if(tren_i>=0 && tren_i<n-1 && tren_j>=0 && tren_j<m 
+               && matrix[tren_i+1][tren_j] == 0){
+                
+                matrix[tren_i][tren_j] = 0;
+                matrix[tren_i+1][tren_j] = 5;
+                
+                anim_param2 += 0.1;
+            }
+            else if(tren_i<n-2 && tren_i>=0 && tren_j>=0 && tren_j<m 
+               && matrix[tren_i+1][tren_j] == 2 && matrix[tren_i+2][tren_j] == 0){
+                
+                matrix[tren_i][tren_j] = 0;
+                matrix[tren_i+1][tren_j] = 5;
+                matrix[tren_i+2][tren_j] = 2;
+                
+                anim_param1 -= 0.1;
+            }
             glutPostRedisplay();
             break;
+        /* Gore */
         case 'w':
         case 'W':
-            anim_param2 -= 0.2;
-            
-            printf("2  %f\n", anim_param2);
+            if(tren_i>=1 && tren_i<n && tren_j>=0 && tren_j<m 
+               && matrix[tren_i-1][tren_j] == 0){
+                
+                matrix[tren_i][tren_j] = 0;
+                matrix[tren_i-1][tren_j] = 5;
+                
+                anim_param2 -= 0.1;
+            }
+            else if(tren_i<n-2 && tren_i>=2 && tren_j>=1 && tren_j<m 
+               && matrix[tren_i-1][tren_j] == 2 && matrix[tren_i-2][tren_j] == 0){
+                
+                matrix[tren_i][tren_j] = 0;
+                matrix[tren_i-1][tren_j] = 5;
+                matrix[tren_i-2][tren_j] = 2;
+                
+                anim_param1 -= 0.1;
+            }
             glutPostRedisplay();
             break;
         case 'g':
@@ -98,24 +162,27 @@ static void on_keyboard(unsigned char key, int x, int y){
 }
 
 static void on_timer(int value){
-    /* Proverava se da li callback dolazi od odgovarajuceg tajmera. */
+    /* Proverava se da li callback dolazi od odgovarajuceg tajmera */
     if (value != TIMER_ID)
         return;
 
     rotation += 10;
     
-    /* Forsira se ponovno iscrtavanje prozora. */
+    anim_param += 0.05;
+    
+    
+    /* Forsira se ponovno iscrtavanje prozora */
     glutPostRedisplay();
-    /* Po potrebi se ponovo postavlja tajmer. */
+    /* Po potrebi se ponovo postavlja tajmer */
     if (timer_active)
         glutTimerFunc(50, on_timer, 0);
 }
 
 static void on_reshape(int width, int height){
-    /* Podesava se viewport. */
+    /* Podesava se viewport */
     glViewport(0, 0, width, height);
 
-    /* Podesava se projekcija. */
+    /* Podesava se projekcija */
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
     gluPerspective(90, (float) width / height, 1, 100);
@@ -139,7 +206,6 @@ static void readMatrix(){
         fprintf(stderr, "Greska pri otvaranju datoteke\n");
         exit(EXIT_FAILURE);
     }
-    
     fscanf(f, "%d%d", &n, &m);
     /*printf("Dimenzije, NxM: %d %d\n\n", n , m);*/
     
@@ -149,19 +215,17 @@ static void readMatrix(){
         exit(EXIT_FAILURE);
     }
     
-    for(int i=0; i<n; i++){
-        matrix[i] = malloc(m*sizeof(int));
-        if(matrix[i] == NULL){
+    for(int k=0; k<n; k++){
+        matrix[k] = malloc(m*sizeof(int));
+        if(matrix[k] == NULL){
             fprintf(stderr, "Greska pri alociranju matrice 2\n");
             exit(EXIT_FAILURE);
         }
     }
-    
-    for(int i=0; i<n; i++){
-        for(int j=0; j<m; j++)
-            fscanf(f, "%d", &matrix[i][j]);
+    for(int k=0; k<n; k++){
+        for(int l=0; l<m; l++)
+            fscanf(f, "%d", &matrix[k][l]);
     }
-    
     /*
      Ispis matrice
      for(int i=0; i<n; i++){
@@ -169,13 +233,10 @@ static void readMatrix(){
             printf("%d ", matrix[i][j]);
         printf("\n");
     }*/
-    
-    
     fclose(f);
 }
 
 static void on_display(void){
-    readMatrix();
     
     /*Pozicija svetla (u pitanju je direkcionalno svetlo) */
     GLfloat light_position[] = { 0.6, 1, 0.8, 0 };
@@ -237,13 +298,11 @@ static void on_display(void){
 
     /* iscrtaj pomocnu ravan
      plot_function();*/
-    
-    /*glColor3f(0, 0.5, 0.5);*/
-    glTranslatef(-1, 0.1, 0);
-    
-    
+    /* Transliramo mapu */
+    glTranslatef(-1, 0.1, -0.05);
     glutWireCube(0.2);
     
+    /* Iscrtavamo mapu/teren pomocu matrice */
     for(int i=0; i<n; i++){
         for(int j=0; j<m; j++){
             
@@ -297,7 +356,6 @@ static void on_display(void){
                     glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
                     glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
      
-                    /*printf("%d %d\n", i, j);*/
                     glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
                     glRotatef(rotation, 0, 1, 0);
                     glScalef(0.125, 0.125, 0.125);
@@ -305,7 +363,30 @@ static void on_display(void){
                 glPopMatrix();
                 
             }
+            else if(matrix[i][j] == 4){
+                glPushMatrix();
+                    diffuse_coeffs[0] = 0.8;
+                    diffuse_coeffs[1] = 0.1;
+      
+                    ambient_coeffs[0] = 0.6;
+                    ambient_coeffs[1] = 0.1;
+                    ambient_coeffs[2] = 0.6;
+      
+                    glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
+                    glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
+     
+                    glTranslatef(((float)j/10.0)*2.0, 0+sin(anim_param), ((float)i/10.0)*2.0);
+                    glBegin(GL_POLYGON);
+                      glVertex3f(-0.1, 0.2, -0.1);
+                      glVertex3f(0.1, 0.2, -0.1);
+                      glVertex3f(0.1, 0.2, 0.1);
+                      glVertex3f(-0.1, 0.2, 0.1);
+                    glEnd();
+                glPopMatrix();
+            }
             else if(matrix[i][j] == 5){
+                tren_i = i;
+                tren_j = j;
                 glPushMatrix();
                     diffuse_coeffs[0] = 0.6;
                     diffuse_coeffs[1] = 0.0;
@@ -318,7 +399,8 @@ static void on_display(void){
                     glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
      
                     /*printf("%d %d\n", i, j);*/
-                    glTranslatef(((float)j/10.0)*2.0 + anim_param1, 0, ((float)i/10.0)*2.0 + anim_param2);
+                    /* glTranslatef(((float)j/10.0)*2.0 + anim_param1, 0, ((float)i/10.0)*2.0 + anim_param2); */
+                    glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
                     glutSolidCube(0.2);
                 glPopMatrix();
                 
@@ -331,8 +413,6 @@ static void on_display(void){
     
     glTranslatef(1, -0.1, 0);
     
-
     /* Nova slika se salje na ekran. */
     glutSwapBuffers();
 }
-
