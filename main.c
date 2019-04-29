@@ -220,6 +220,15 @@ static void on_keyboard(unsigned char key, int x, int y){
                 timer_active = 1;
             }
             break;
+        /* restart */
+        case 'r':
+            anim_param = 0;
+            anim_param1 = 0;
+            anim_param2 = 0;
+            readMatrix();
+            
+            glutPostRedisplay();
+            break;
         case 27:
             /* Zavrsava se program. */
             timer_active = 0;
@@ -235,9 +244,7 @@ static void on_timer(int value){
         return;
 
     rotation += 10;
-    
     anim_param += 0.1;
-    
     
     /* Forsira se ponovno iscrtavanje prozora */
     glutPostRedisplay();
@@ -337,12 +344,13 @@ static void on_display(void){
 
     /* Transliramo mapu */
     glScalef(1.5, 1.5, 1.5);
-    glTranslatef(-1, 0.1, -1);
+    glTranslatef(-1, 0.1, -1.05);
     
     /* Iscrtavamo mapu/teren pomocu matrice */
     for(int i=0; i<n; i++){
         for(int j=0; j<m; j++){
             
+            /* Zidovi */
             if(matrix[i][j] == 1){
                 glPushMatrix();
                     diffuse_coeffs[0] = 0.8;
@@ -361,15 +369,16 @@ static void on_display(void){
                 glPopMatrix();
                 
             }
+            /* Kutije koje igrac moze da pomera */
             else if(matrix[i][j] == 2){
                  glPushMatrix();
-                    diffuse_coeffs[0] = 0.2;
-                    diffuse_coeffs[1] = 0.8;
-                    diffuse_coeffs[2] = 0.1;
+                    diffuse_coeffs[0] = 0.9;
+                    diffuse_coeffs[1] = 0.1;
+                    diffuse_coeffs[2] = 0.6;
                     
-                    ambient_coeffs[0] = 0.5;
+                    ambient_coeffs[0] = 0.7;
                     ambient_coeffs[1] = 0.5;
-                    ambient_coeffs[2] = 0.5;
+                    ambient_coeffs[2] = 0.6;
       
                     glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
                     glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
@@ -378,6 +387,7 @@ static void on_display(void){
                     glutSolidCube(0.2);
                 glPopMatrix();
             }
+            /* Cilj */
             else if(matrix[i][j] == 3){
                 glPushMatrix();
                     diffuse_coeffs[0] = 0.85;
@@ -399,6 +409,7 @@ static void on_display(void){
                 
             }
             else if(matrix[i][j] == 4){
+            /* Igrac */
                 glPushMatrix();
                     diffuse_coeffs[0] = 0.8;
                     diffuse_coeffs[1] = 0.05;
@@ -437,15 +448,81 @@ static void on_display(void){
      
                     glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
                     glutSolidCube(0.2);
+                    
                 glPopMatrix();
                 
+            }
+            /* Drvece */
+            else if(matrix[i][j] == 6){
+                /* Stablo */
+                glPushMatrix();
+                    diffuse_coeffs[0] = 0.8;
+                    diffuse_coeffs[1] = 0.2;
+                    diffuse_coeffs[2] = 0.1;
+                    
+                    ambient_coeffs[0] = 0.3;
+                    ambient_coeffs[1] = 0.3;
+                    ambient_coeffs[2] = 0.3;
+      
+                    glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
+                    glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
+                
+                    glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
+                    glScalef(0.5, 1, 0.5);
+                    glutSolidCube(0.2);
+                glPopMatrix();
+                /* Krosnja */
+                glPushMatrix();
+                    diffuse_coeffs[0] = 0.2;
+                    diffuse_coeffs[1] = 0.8;
+                    diffuse_coeffs[2] = 0.1;
+                    
+                    ambient_coeffs[0] = 0.6;
+                    ambient_coeffs[1] = 0.7;
+                    ambient_coeffs[2] = 0.6;
+      
+                    glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
+                    glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
+                    
+                    glTranslatef(((float)j/10.0)*2.0, 0.2, ((float)i/10.0)*2.0);
+                    glScalef(1.1, 1, 1.1);
+                    
+                    double clip_plane1[] = {0, -0.1, 0, 0};
+                    glClipPlane(GL_CLIP_PLANE0, clip_plane1);
+                    glEnable(GL_CLIP_PLANE0);
+                    
+                    glutSolidCube(0.2);
+                    
+                    glDisable(GL_CLIP_PLANE0);
+                glPopMatrix();
+                glPushMatrix();
+                    diffuse_coeffs[0] = 0.2;
+                    diffuse_coeffs[1] = 0.7;
+                    diffuse_coeffs[2] = 0.1;
+                    
+                    ambient_coeffs[0] = 0.4;
+                    ambient_coeffs[1] = 0.4;
+                    ambient_coeffs[2] = 0.4;
+      
+                    glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
+                    glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
+                    
+                    glTranslatef(((float)j/10.0)*2.0, 0.2, ((float)i/10.0)*2.0);
+                    glScalef(1.1, 1, 1.1);
+                    
+                    double clip_plane2[] = {0, 0.1, 0, 0};
+
+                    glClipPlane(GL_CLIP_PLANE0, clip_plane2);
+                    glEnable(GL_CLIP_PLANE0);
+                     glutSolidCube(0.2);
+                    glDisable(GL_CLIP_PLANE0);
+                glPopMatrix();
             }
             else 
                 continue;
             
         }
     }
-    
     glTranslatef(1, -0.1, 0);
     /* Nova slika se salje na ekran. */
     glutSwapBuffers();
