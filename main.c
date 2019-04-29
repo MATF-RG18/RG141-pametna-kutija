@@ -67,12 +67,28 @@ static void on_keyboard(unsigned char key, int x, int y){
                 
                 anim_param1 -= 0.1;
             }
+            else if(tren_i<n && tren_i>=0 && tren_j>=1 && tren_j<m 
+               && matrix[tren_i][tren_j-1] == 4){
+                
+                matrix[tren_i][tren_j] = 0;
+                printf("GAME OVER\n");
+                exit(0);
+            }
             else if(tren_i<n && tren_i>=0 && tren_j>=2 && tren_j<m 
                && matrix[tren_i][tren_j-1] == 2 && matrix[tren_i][tren_j-2] == 0){
                 
                 matrix[tren_i][tren_j] = 0;
                 matrix[tren_i][tren_j-1] = 5;
                 matrix[tren_i][tren_j-2] = 2;
+                
+                anim_param1 -= 0.1;
+            }
+            else if(tren_i<n && tren_i>=0 && tren_j>=2 && tren_j<m 
+               && matrix[tren_i][tren_j-1] == 2 && matrix[tren_i][tren_j-2] == 4){
+                
+                matrix[tren_i][tren_j] = 0;
+                matrix[tren_i][tren_j-1] = 5;
+                matrix[tren_i][tren_j-2] = 0;
                 
                 anim_param1 -= 0.1;
             }
@@ -90,12 +106,28 @@ static void on_keyboard(unsigned char key, int x, int y){
                 
                 anim_param1 += 0.1;
             }
+            else if(tren_i>=0 && tren_i<n && tren_j>=0 && tren_j<m-1 
+               && matrix[tren_i][tren_j+1] == 4){
+                
+                matrix[tren_i][tren_j] = 0;
+                printf("GAME OVER\n");
+                exit(0);
+            }
             else if(tren_i<n && tren_i>=0 && tren_j>=1 && tren_j<m-2 
                && matrix[tren_i][tren_j+1] == 2 && matrix[tren_i][tren_j+2] == 0){
                 
                 matrix[tren_i][tren_j] = 0;
                 matrix[tren_i][tren_j+1] = 5;
                 matrix[tren_i][tren_j+2] = 2;
+                
+                anim_param1 -= 0.1;
+            }
+            else if(tren_i<n && tren_i>=0 && tren_j>=1 && tren_j<m-2 
+               && matrix[tren_i][tren_j+1] == 2 && matrix[tren_i][tren_j+2] == 4){
+                
+                matrix[tren_i][tren_j] = 0;
+                matrix[tren_i][tren_j+1] = 5;
+                matrix[tren_i][tren_j+2] = 0;
                 
                 anim_param1 -= 0.1;
             }
@@ -112,12 +144,30 @@ static void on_keyboard(unsigned char key, int x, int y){
                 
                 anim_param2 += 0.1;
             }
+            else if(tren_i>=0 && tren_i<n-1 && tren_j>=0 && tren_j<m 
+               && matrix[tren_i+1][tren_j] == 4){
+                
+                matrix[tren_i][tren_j] = 0;
+                printf("GAME OVER\n");
+                exit(0);
+                
+                anim_param2 += 0.1;
+            }
             else if(tren_i<n-2 && tren_i>=0 && tren_j>=0 && tren_j<m 
                && matrix[tren_i+1][tren_j] == 2 && matrix[tren_i+2][tren_j] == 0){
                 
                 matrix[tren_i][tren_j] = 0;
                 matrix[tren_i+1][tren_j] = 5;
                 matrix[tren_i+2][tren_j] = 2;
+                
+                anim_param1 -= 0.1;
+            }
+            else if(tren_i<n-2 && tren_i>=0 && tren_j>=0 && tren_j<m 
+               && matrix[tren_i+1][tren_j] == 2 && matrix[tren_i+2][tren_j] == 4){
+                
+                matrix[tren_i][tren_j] = 0;
+                matrix[tren_i+1][tren_j] = 5;
+                matrix[tren_i+2][tren_j] = 0;
                 
                 anim_param1 -= 0.1;
             }
@@ -134,12 +184,29 @@ static void on_keyboard(unsigned char key, int x, int y){
                 
                 anim_param2 -= 0.1;
             }
+            else if(tren_i>=1 && tren_i<n && tren_j>=0 && tren_j<m 
+               && matrix[tren_i-1][tren_j] == 4){
+                
+                matrix[tren_i][tren_j] = 0;
+                printf("GAME OVER\n");
+                exit(0);
+                anim_param2 -= 0.1;
+            }
             else if(tren_i<n-2 && tren_i>=2 && tren_j>=1 && tren_j<m 
                && matrix[tren_i-1][tren_j] == 2 && matrix[tren_i-2][tren_j] == 0){
                 
                 matrix[tren_i][tren_j] = 0;
                 matrix[tren_i-1][tren_j] = 5;
                 matrix[tren_i-2][tren_j] = 2;
+                
+                anim_param1 -= 0.1;
+            }
+            else if(tren_i<n-2 && tren_i>=2 && tren_j>=1 && tren_j<m 
+               && matrix[tren_i-1][tren_j] == 2 && matrix[tren_i-2][tren_j] == 4){
+                
+                matrix[tren_i][tren_j] = 0;
+                matrix[tren_i-1][tren_j] = 5;
+                matrix[tren_i-2][tren_j] = 0;
                 
                 anim_param1 -= 0.1;
             }
@@ -155,6 +222,7 @@ static void on_keyboard(unsigned char key, int x, int y){
             break;
         case 27:
             /* Zavrsava se program. */
+            timer_active = 0;
             exit(0);
             break;
         
@@ -168,7 +236,7 @@ static void on_timer(int value){
 
     rotation += 10;
     
-    anim_param += 0.05;
+    anim_param += 0.1;
     
     
     /* Forsira se ponovno iscrtavanje prozora */
@@ -239,17 +307,14 @@ static void readMatrix(){
 static void on_display(void){
     
     /*Pozicija svetla (u pitanju je direkcionalno svetlo) */
-    GLfloat light_position[] = { 0.6, 1, 0.8, 0 };
-    /*Ambijentalna boja svetla */
-    GLfloat light_ambient[] = { 0.1, 0.2, 0.1, 1 };
-    /*Difuzna boja svetla */
-    GLfloat light_diffuse[] = { 0.9, 0.6, 0.6, 1 };
-    /*Spekularna boja svetla */
+    GLfloat light_position[] = { 0.6, 1.4, 0.9, 0 };
+    GLfloat light_ambient[] = { 0.2, 0.2, 0.2, 1 };
+    GLfloat light_diffuse[] = { 0.7, 0.7, 0.7, 1 };
     GLfloat light_specular[] = { 0.9, 0.9, 0.9, 1 };
 
-    GLfloat ambient_coeffs[] = { 0.9, 0.9, 0.9, 1 };
-    GLfloat diffuse_coeffs[] = { 0.5, 0.5, 0.5, 1 };
-    GLfloat specular_coeffs[] = { 1, 0.1, 0.1, 1 };
+    GLfloat ambient_coeffs[] = { 0, 0, 0, 1 };
+    GLfloat diffuse_coeffs[] = { 0, 0, 0, 1 };
+    GLfloat specular_coeffs[] = { 0, 0, 0, 1 };
     GLfloat shininess = 20;
 
     /*Brise se prethodni sadrzaj prozora */ 
@@ -258,7 +323,7 @@ static void on_display(void){
     /*Podesava se vidna tacka */
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
-    gluLookAt(-1.2+anim_param1/10, 2.3, 2.5+anim_param2/10, 0, 0, 0, 0, 1, 0);
+    gluLookAt(-1.4+anim_param1/10, 2.7, 2.7+anim_param2/10, 0, 0, 0, 0, 1, 0);
 
     /*Ukljucuje se osvjetljenje i podesavaju parametri svetla */ 
     glEnable(GL_LIGHTING);
@@ -275,32 +340,10 @@ static void on_display(void){
     glMaterialf(GL_FRONT, GL_SHININESS, shininess);
 
     glShadeModel(GL_SMOOTH);
-    
-    /*X*/
-    
-    glBegin(GL_LINES);
-        glVertex3f(0, 0, 0);
-        glVertex3f(100, 0, 0);
-    glEnd();
-    /*Y*/ 
-    
-    glBegin(GL_LINES);
-        glVertex3f(0, 0, 0);
-        glVertex3f(0, 100, 0);
-    glEnd();
-        
-    /*Z*/
-    
-    glBegin(GL_LINES);
-        glVertex3f(0, 0, 0);
-        glVertex3f(0, 0, 100);
-    glEnd();
 
-    /* iscrtaj pomocnu ravan
-     plot_function();*/
     /* Transliramo mapu */
-    glTranslatef(-1, 0.1, -0.05);
-    glutWireCube(0.2);
+    glScalef(1.5, 1.5, 1.5);
+    glTranslatef(-1, 0.1, -1);
     
     /* Iscrtavamo mapu/teren pomocu matrice */
     for(int i=0; i<n; i++){
@@ -309,17 +352,16 @@ static void on_display(void){
             if(matrix[i][j] == 1){
                 glPushMatrix();
                     diffuse_coeffs[0] = 0.8;
-                    diffuse_coeffs[1] = 0.5;
-                    diffuse_coeffs[2] = 0.5;
+                    diffuse_coeffs[1] = 0.1;
+                    diffuse_coeffs[2] = 0.1;
                     
-                    ambient_coeffs[0] = 0.5;
-                    ambient_coeffs[1] = 0.5;
-                    ambient_coeffs[2] = 0.5;
+                    ambient_coeffs[0] = 0.6;
+                    ambient_coeffs[1] = 0.6;
+                    ambient_coeffs[2] = 0.6;
       
                     glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
                     glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
      
-                    /*printf("%d %d\n", i, j);*/
                     glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
                     glutSolidCube(0.2);
                 glPopMatrix();
@@ -327,31 +369,30 @@ static void on_display(void){
             }
             else if(matrix[i][j] == 2){
                  glPushMatrix();
-                    diffuse_coeffs[0] = 0.1;
-                    diffuse_coeffs[1] = 1;
-                    diffuse_coeffs[2] = 1;
+                    diffuse_coeffs[0] = 0.2;
+                    diffuse_coeffs[1] = 0.8;
+                    diffuse_coeffs[2] = 0.1;
                     
-                    ambient_coeffs[0] = .5;
+                    ambient_coeffs[0] = 0.5;
                     ambient_coeffs[1] = 0.5;
                     ambient_coeffs[2] = 0.5;
       
                     glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
                     glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
      
-                    /*printf("%d %d\n", i, j);*/
                     glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
                     glutSolidCube(0.2);
                 glPopMatrix();
             }
             else if(matrix[i][j] == 3){
                 glPushMatrix();
-                    diffuse_coeffs[0] = 0.3;
-                    diffuse_coeffs[1] = 0.3;
-                    diffuse_coeffs[2] = 0.9;
+                    diffuse_coeffs[0] = 0.85;
+                    diffuse_coeffs[1] = 0.85;
+                    diffuse_coeffs[2] = 0.0;
                     
-                    ambient_coeffs[0] = 0.5;
-                    ambient_coeffs[1] = 0.5;
-                    ambient_coeffs[2] = 0.5;
+                    ambient_coeffs[0] = 0.9;
+                    ambient_coeffs[1] = 0.9;
+                    ambient_coeffs[2] = 1;
       
                     glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
                     glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
@@ -366,16 +407,17 @@ static void on_display(void){
             else if(matrix[i][j] == 4){
                 glPushMatrix();
                     diffuse_coeffs[0] = 0.8;
-                    diffuse_coeffs[1] = 0.1;
-      
+                    diffuse_coeffs[1] = 0.05;
+                    diffuse_coeffs[2] = 0.8;
+                    
                     ambient_coeffs[0] = 0.6;
-                    ambient_coeffs[1] = 0.1;
+                    ambient_coeffs[1] = 0.6;
                     ambient_coeffs[2] = 0.6;
       
                     glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
                     glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
      
-                    glTranslatef(((float)j/10.0)*2.0, 0+sin(anim_param), ((float)i/10.0)*2.0);
+                    glTranslatef(((float)j/10.0)*2.0, 0+sin(anim_param)/8, ((float)i/10.0)*2.0);
                     glBegin(GL_POLYGON);
                       glVertex3f(-0.1, 0.2, -0.1);
                       glVertex3f(0.1, 0.2, -0.1);
@@ -388,18 +430,17 @@ static void on_display(void){
                 tren_i = i;
                 tren_j = j;
                 glPushMatrix();
-                    diffuse_coeffs[0] = 0.6;
-                    diffuse_coeffs[1] = 0.0;
-      
-                    ambient_coeffs[0] = 0.6;
-                    ambient_coeffs[1] = 0.0;
-                    ambient_coeffs[2] = 0.6;
+                    diffuse_coeffs[0] = 0;
+                    diffuse_coeffs[1] = 0.8;
+                    diffuse_coeffs[2] = 1;
+                    
+                    ambient_coeffs[0] = 0.5;
+                    ambient_coeffs[1] = 0.5;
+                    ambient_coeffs[2] = 0.5;
       
                     glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
                     glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
      
-                    /*printf("%d %d\n", i, j);*/
-                    /* glTranslatef(((float)j/10.0)*2.0 + anim_param1, 0, ((float)i/10.0)*2.0 + anim_param2); */
                     glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
                     glutSolidCube(0.2);
                 glPopMatrix();
@@ -412,7 +453,6 @@ static void on_display(void){
     }
     
     glTranslatef(1, -0.1, 0);
-    
     /* Nova slika se salje na ekran. */
     glutSwapBuffers();
 }
