@@ -294,13 +294,7 @@ static void readMatrix(){
         for(int l=0; l<m; l++)
             fscanf(f, "%d", &matrix[k][l]);
     }
-    /*
-     Ispis matrice
-     for(int i=0; i<n; i++){
-        for(int j=0; j<m; j++)
-            printf("%d ", matrix[i][j]);
-        printf("\n");
-    }*/
+    
     fclose(f);
 }
 
