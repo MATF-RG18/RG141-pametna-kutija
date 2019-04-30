@@ -6,15 +6,17 @@
 #define TIMER_INTERVAL 50
 #define TIMER_ID 0
 
+/* Matrica koja cua poligon */
 static int **matrix;
 static int n, m, tren_i, tren_j;
+static int indikator = 0;
 static void readMatrix();
 
 /* Globalne promenljive, u svrhe animacija i kretanja kamere */
-static float anim_param = 0;
-static float anim_param1 = 0;
-static float anim_param2 = 0;
-static float rotation;
+static float anim_param = 0;   /* Kretanje plocice */
+static float anim_param1 = 0;  /* Pomeranje kamere */
+static float anim_param2 = 0;  /* Pomeranje kamere */
+static float rotation;         /* Ugao rotacije */
 
 /* Fleg koji odredjuje stanje tajmera. */
 static int timer_active;
@@ -26,21 +28,21 @@ static void on_display(void);
 static void on_timer(int value);
 
 int main(int argc, char **argv){
-    /* Inicijalizuje se GLUT. */
+    /* Inicijalizuje se GLUT */
     glutInit(&argc, argv);
     glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
 
-    /* Kreira se prozor. */
-    glutInitWindowSize(800, 600);
+    /* Kreira se prozor */
+    glutInitWindowSize(700, 550);
     glutInitWindowPosition(300, 50);
     glutCreateWindow(argv[0]);
 
-    /* Registruju se callback funkcije. */
+    /* Registruju se callback funkcije */
     glutKeyboardFunc(on_keyboard);
     glutReshapeFunc(on_reshape);
     glutDisplayFunc(on_display);
 
-    /* Obavlja se OpenGL inicijalizacija. */
+    /* Obavlja se OpenGL inicijalizacija */
     glClearColor(1, 1, 0.8, 0);
     glEnable(GL_DEPTH_TEST);
 
@@ -48,7 +50,7 @@ int main(int argc, char **argv){
     /* Ukljucujemo normalizaciju vektora normala */
     glEnable(GL_NORMALIZE);
 
-    /* Program ulazi u glavnu petlju. */
+    /* Program ulazi u glavnu petlju */
     glutMainLoop();
 
     return 0;
@@ -75,6 +77,24 @@ static void on_keyboard(unsigned char key, int x, int y){
                 exit(0);
             }
             else if(tren_i<n && tren_i>=0 && tren_j>=2 && tren_j<m 
+               && matrix[tren_i][tren_j-1] == 2 && matrix[tren_i][tren_j-2] == 8){
+                
+                matrix[tren_i][tren_j] = 0;
+                matrix[tren_i][tren_j-1] = 5;
+                matrix[tren_i][tren_j-2] = 2;
+                
+                for(int i=0; i<n; i++){
+                    for(int j=0; j<m; j++){
+                        if(matrix[i][j] == 7){
+                            matrix[i][j] = 0;
+                            break;
+                        }
+                    }
+                }
+                
+                anim_param1 -= 0.1;
+            }
+            else if(tren_i<n && tren_i>=0 && tren_j>=2 && tren_j<m 
                && matrix[tren_i][tren_j-1] == 2 && matrix[tren_i][tren_j-2] == 0){
                 
                 matrix[tren_i][tren_j] = 0;
@@ -92,9 +112,19 @@ static void on_keyboard(unsigned char key, int x, int y){
                 
                 anim_param1 -= 0.1;
             }
-            
+            else if(tren_i<n && tren_i>=0 && tren_j>=1 && tren_j<m 
+               && matrix[tren_i][tren_j-1] == 3){       /* Naisli smo na cilj */
+                matrix[tren_i][tren_j] = 0;
+                matrix[tren_i][tren_j-1] = 5;
+                
+                anim_param1 -= 0.1;
+                
+                indikator++;
+                readMatrix();
+            }
             glutPostRedisplay();
             break;
+            
         /* Desno */
         case 'd':
         case 'D':
@@ -120,7 +150,25 @@ static void on_keyboard(unsigned char key, int x, int y){
                 matrix[tren_i][tren_j+1] = 5;
                 matrix[tren_i][tren_j+2] = 2;
                 
-                anim_param1 -= 0.1;
+                anim_param1 += 0.1;
+            }
+            else if(tren_i<n && tren_i>=0 && tren_j>=0 && tren_j<m-2 
+               && matrix[tren_i][tren_j+1] == 2 && matrix[tren_i][tren_j+2] == 8){
+                
+                matrix[tren_i][tren_j] = 0;
+                matrix[tren_i][tren_j+1] = 5;
+                matrix[tren_i][tren_j+2] = 2;
+                
+                for(int i=0; i<n; i++){
+                    for(int j=0; j<m; j++){
+                        if(matrix[i][j] == 7){
+                            matrix[i][j] = 0;
+                            break;
+                        }
+                    }
+                }
+                
+                anim_param1 += 0.1;
             }
             else if(tren_i<n && tren_i>=0 && tren_j>=1 && tren_j<m-2 
                && matrix[tren_i][tren_j+1] == 2 && matrix[tren_i][tren_j+2] == 4){
@@ -129,8 +177,20 @@ static void on_keyboard(unsigned char key, int x, int y){
                 matrix[tren_i][tren_j+1] = 5;
                 matrix[tren_i][tren_j+2] = 0;
                 
-                anim_param1 -= 0.1;
+                anim_param1 += 0.1;
             }
+            else if(tren_i>=0 && tren_i<n && tren_j>=0 && tren_j<m-1 
+                    && matrix[tren_i][tren_j+1] == 3){       /* Naisli smo na cilj */
+                
+                matrix[tren_i][tren_j] = 0;
+                matrix[tren_i][tren_j+1] = 5;
+                
+                anim_param1 += 0.1;
+                
+                indikator++;
+                readMatrix();
+            }
+            
             glutPostRedisplay();
             break;
         /* Dole */
@@ -160,7 +220,25 @@ static void on_keyboard(unsigned char key, int x, int y){
                 matrix[tren_i+1][tren_j] = 5;
                 matrix[tren_i+2][tren_j] = 2;
                 
-                anim_param1 -= 0.1;
+                anim_param2 += 0.1;
+            }
+            else if(tren_i<n-2 && tren_i>=0 && tren_j>=0 && tren_j<m 
+               && matrix[tren_i+1][tren_j] == 2 && matrix[tren_i+2][tren_j] == 8){
+                
+                matrix[tren_i][tren_j] = 0;
+                matrix[tren_i+1][tren_j] = 5;
+                matrix[tren_i+2][tren_j] = 2;
+                
+                for(int i=0; i<n; i++){
+                    for(int j=0; j<m; j++){
+                        if(matrix[i][j] == 7){
+                            matrix[i][j] = 0;
+                            break;
+                        }
+                    }
+                }
+                
+                anim_param2 += 0.1;
             }
             else if(tren_i<n-2 && tren_i>=0 && tren_j>=0 && tren_j<m 
                && matrix[tren_i+1][tren_j] == 2 && matrix[tren_i+2][tren_j] == 4){
@@ -169,8 +247,20 @@ static void on_keyboard(unsigned char key, int x, int y){
                 matrix[tren_i+1][tren_j] = 5;
                 matrix[tren_i+2][tren_j] = 0;
                 
-                anim_param1 -= 0.1;
+                anim_param2 += 0.1;
             }
+            else if(tren_i>=0 && tren_i<n-1 && tren_j>=0 && tren_j<m 
+                    && matrix[tren_i+1][tren_j] == 3){       /* Naisli smo na cilj */
+                
+                matrix[tren_i][tren_j] = 0;
+                matrix[tren_i+1][tren_j] = 5;
+                
+                anim_param2 += 0.1;
+                
+                indikator++;
+                readMatrix();
+            }
+            
             glutPostRedisplay();
             break;
         /* Gore */
@@ -192,29 +282,58 @@ static void on_keyboard(unsigned char key, int x, int y){
                 exit(0);
                 anim_param2 -= 0.1;
             }
-            else if(tren_i<n-2 && tren_i>=2 && tren_j>=1 && tren_j<m 
+            else if(tren_i<n && tren_i>=2 && tren_j>=0 && tren_j<m 
                && matrix[tren_i-1][tren_j] == 2 && matrix[tren_i-2][tren_j] == 0){
                 
                 matrix[tren_i][tren_j] = 0;
                 matrix[tren_i-1][tren_j] = 5;
                 matrix[tren_i-2][tren_j] = 2;
                 
-                anim_param1 -= 0.1;
+                anim_param2 -= 0.1;
             }
-            else if(tren_i<n-2 && tren_i>=2 && tren_j>=1 && tren_j<m 
+            else if(tren_i<n && tren_i>=2 && tren_j>=0 && tren_j<m 
+               && matrix[tren_i-1][tren_j] == 2 && matrix[tren_i-2][tren_j] == 8){
+                
+                matrix[tren_i][tren_j] = 0;
+                matrix[tren_i-1][tren_j] = 5;
+                matrix[tren_i-2][tren_j] = 2;
+                
+                for(int i=0; i<n; i++){
+                    for(int j=0; j<m; j++){
+                        if(matrix[i][j] == 7){
+                            matrix[i][j] = 0;
+                            break;
+                        }
+                    }
+                }
+                anim_param2 -= 0.1;
+            }
+            else if(tren_i<n && tren_i>=2 && tren_j>=0 && tren_j<m 
                && matrix[tren_i-1][tren_j] == 2 && matrix[tren_i-2][tren_j] == 4){
                 
                 matrix[tren_i][tren_j] = 0;
                 matrix[tren_i-1][tren_j] = 5;
                 matrix[tren_i-2][tren_j] = 0;
                 
-                anim_param1 -= 0.1;
+                anim_param2 -= 0.1;
             }
+            else if(tren_i>=1 && tren_i<n && tren_j>=0 && tren_j<m 
+                   && matrix[tren_i-1][tren_j] == 3){       /* Naisli smo na cilj */
+                
+                matrix[tren_i][tren_j] = 0;
+                matrix[tren_i-1][tren_j] = 5;
+                
+                anim_param2 -= 0.1;
+                
+                indikator++;
+                readMatrix();
+            }
+            
             glutPostRedisplay();
             break;
+        /* Pokrece se simulacija */
         case 'g':
         case 'G':
-            /* Pokrece se simulacija. */
             if (!timer_active) {
                 glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
                 timer_active = 1;
@@ -229,8 +348,8 @@ static void on_keyboard(unsigned char key, int x, int y){
             
             glutPostRedisplay();
             break;
+        /* Zavrsava se program */
         case 27:
-            /* Zavrsava se program. */
             timer_active = 0;
             exit(0);
             break;
@@ -275,11 +394,26 @@ void plot_function(){
     glPopMatrix();
 }
 
+/* Citamo matricu iz datoteke */
 static void readMatrix(){
-    FILE* f = fopen("matrica1.txt", "r"); 
-    if(f == NULL){
-        fprintf(stderr, "Greska pri otvaranju datoteke\n");
-        exit(EXIT_FAILURE);
+    FILE* f;
+    if(indikator == 0){
+        f = fopen("matrica1.txt", "r"); 
+        if(f == NULL){
+            fprintf(stderr, "Greska pri otvaranju datoteke\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else if(indikator == 1){
+        f = fopen("matrica2.txt", "r"); 
+        if(f == NULL){
+            fprintf(stderr, "Greska pri otvaranju datoteke\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else{
+        printf("\n*** THE END ***\n\n");
+        exit(EXIT_SUCCESS);
     }
     fscanf(f, "%d%d", &n, &m);
     /*printf("Dimenzije, NxM: %d %d\n\n", n , m);*/
@@ -343,8 +477,8 @@ static void on_display(void){
     glShadeModel(GL_SMOOTH);
 
     /* Transliramo mapu */
-    glScalef(1.5, 1.5, 1.5);
-    glTranslatef(-1, 0.1, -1.05);
+    glScalef(1.6, 1.6, 1.6);
+    glTranslatef(-1.1, 0.1, -1.05);
     
     /* Iscrtavamo mapu/teren pomocu matrice */
     for(int i=0; i<n; i++){
@@ -357,9 +491,9 @@ static void on_display(void){
                     diffuse_coeffs[1] = 0.1;
                     diffuse_coeffs[2] = 0.1;
                     
-                    ambient_coeffs[0] = 0.6;
-                    ambient_coeffs[1] = 0.6;
-                    ambient_coeffs[2] = 0.6;
+                    ambient_coeffs[0] = 0.7;
+                    ambient_coeffs[1] = 0.7;
+                    ambient_coeffs[2] = 0.7;
       
                     glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
                     glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
@@ -431,6 +565,7 @@ static void on_display(void){
                     glEnd();
                 glPopMatrix();
             }
+            /* Igrac */
             else if(matrix[i][j] == 5){
                 tren_i = i;
                 tren_j = j;
@@ -485,7 +620,7 @@ static void on_display(void){
                     glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
                     
                     glTranslatef(((float)j/10.0)*2.0, 0.2, ((float)i/10.0)*2.0);
-                    glScalef(1.1, 1, 1.1);
+                    glScalef(1.1, 1.5, 1.1);
                     
                     double clip_plane1[] = {0, -0.1, 0, 0};
                     glClipPlane(GL_CLIP_PLANE0, clip_plane1);
@@ -508,7 +643,7 @@ static void on_display(void){
                     glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
                     
                     glTranslatef(((float)j/10.0)*2.0, 0.2, ((float)i/10.0)*2.0);
-                    glScalef(1.1, 1, 1.1);
+                    glScalef(1.1, 1.5, 1.1);
                     
                     double clip_plane2[] = {0, 0.1, 0, 0};
 
@@ -516,6 +651,46 @@ static void on_display(void){
                     glEnable(GL_CLIP_PLANE0);
                      glutSolidCube(0.2);
                     glDisable(GL_CLIP_PLANE0);
+                glPopMatrix();
+            }
+            /* Vrata */
+            else if(matrix[i][j] == 7){
+                glPushMatrix();
+                    diffuse_coeffs[0] = 0.4;
+                    diffuse_coeffs[1] = 1;
+                    diffuse_coeffs[2] = 0.5;
+                    
+                    ambient_coeffs[0] = 0.9;
+                    ambient_coeffs[1] = 1;
+                    ambient_coeffs[2] = 0.9;
+      
+                    glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
+                    glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
+     
+                    glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
+                    glScalef(1.5, 2.2, 0.25);
+                    glutSolidCube(0.1);
+                    
+                glPopMatrix();
+            }
+            /* Kljuc koji otvara vrata */
+            else if(matrix[i][j] == 8){
+                glPushMatrix();
+                    diffuse_coeffs[0] = 0.4;
+                    diffuse_coeffs[1] = 1;
+                    diffuse_coeffs[2] = 0.5;
+                    
+                    ambient_coeffs[0] = 0.9;
+                    ambient_coeffs[1] = 1;
+                    ambient_coeffs[2] = 0.9;
+      
+                    glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
+                    glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
+     
+                    glTranslatef(((float)j/10.0)*2.0, 0.1, ((float)i/10.0)*2.0);
+                    glRotatef(rotation, 1, 1, 0);
+                    glutSolidCube(0.1);
+                    
                 glPopMatrix();
             }
             else 
