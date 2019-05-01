@@ -6,6 +6,13 @@
 #define TIMER_INTERVAL 50
 #define TIMER_ID 0
 
+static void error(char* str, int lineNum){
+    fprintf(stderr, "Greska: %s u liniji %d\n", str, lineNum);
+    exit(EXIT_FAILURE);
+}
+
+#define ERROR(str) error(str, __LINE__);
+
 /* Matrica koja cua poligon */
 static int **matrix;
 static int n, m, tren_i, tren_j;
@@ -46,7 +53,9 @@ int main(int argc, char **argv){
     glClearColor(1, 1, 0.8, 0);
     glEnable(GL_DEPTH_TEST);
 
+    /* Poligon prvog nivoa */
     readMatrix();
+    
     /* Ukljucujemo normalizaciju vektora normala */
     glEnable(GL_NORMALIZE);
 
@@ -61,7 +70,7 @@ static void on_keyboard(unsigned char key, int x, int y){
         /* Levo */
         case 'a':
         case 'A':
-            if(tren_i<n && tren_i>=0 && tren_j>=1 && tren_j<m 
+            if(tren_i<n && tren_i>=0 && tren_j>=1 && tren_j<m  /* Prazno polje */
                && matrix[tren_i][tren_j-1] == 0){
                 
                 matrix[tren_i][tren_j] = 0;
@@ -69,7 +78,7 @@ static void on_keyboard(unsigned char key, int x, int y){
                 
                 anim_param1 -= 0.1;
             }
-            else if(tren_i<n && tren_i>=0 && tren_j>=1 && tren_j<m 
+            else if(tren_i<n && tren_i>=0 && tren_j>=1 && tren_j<m  /* Rupa */
                && matrix[tren_i][tren_j-1] == 4){
                 
                 matrix[tren_i][tren_j] = 0;
@@ -120,11 +129,17 @@ static void on_keyboard(unsigned char key, int x, int y){
                 anim_param1 -= 0.1;
                 
                 indikator++;
+                
+                /* Oslobadjanje matrice, kako ne bi doslo do curenja memorije */
+                for(int i=0; i<n; i++){
+                    free(matrix[i]);
+                }
+                free(matrix);
+                /* Naredni nivo */
                 readMatrix();
             }
             glutPostRedisplay();
             break;
-            
         /* Desno */
         case 'd':
         case 'D':
@@ -167,7 +182,6 @@ static void on_keyboard(unsigned char key, int x, int y){
                         }
                     }
                 }
-                
                 anim_param1 += 0.1;
             }
             else if(tren_i<n && tren_i>=0 && tren_j>=1 && tren_j<m-2 
@@ -186,8 +200,14 @@ static void on_keyboard(unsigned char key, int x, int y){
                 matrix[tren_i][tren_j+1] = 5;
                 
                 anim_param1 += 0.1;
-                
                 indikator++;
+            
+                /* Oslobadjanje matrice, kako ne bi doslo do curenja memorije */
+                for(int i=0; i<n; i++){
+                    free(matrix[i]);
+                }
+                free(matrix);
+                /* Naredni nivo */
                 readMatrix();
             }
             
@@ -256,11 +276,16 @@ static void on_keyboard(unsigned char key, int x, int y){
                 matrix[tren_i+1][tren_j] = 5;
                 
                 anim_param2 += 0.1;
-                
                 indikator++;
+            
+                /* Oslobadjanje matrice, kako ne bi doslo do curenja memorije */
+                for(int i=0; i<n; i++){
+                    free(matrix[i]);
+                }
+                free(matrix);
+                /* Naredni nivo */
                 readMatrix();
             }
-            
             glutPostRedisplay();
             break;
         /* Gore */
@@ -324,11 +349,16 @@ static void on_keyboard(unsigned char key, int x, int y){
                 matrix[tren_i-1][tren_j] = 5;
                 
                 anim_param2 -= 0.1;
-                
                 indikator++;
+            
+                /* Oslobadjanje matrice, kako ne bi doslo do curenja memorije */
+                for(int i=0; i<n; i++){
+                    free(matrix[i]);
+                }
+                free(matrix);
+                /* Naredni nivo */
                 readMatrix();
             }
-            
             glutPostRedisplay();
             break;
         /* Pokrece se simulacija */
@@ -381,69 +411,44 @@ static void on_reshape(int width, int height){
     glLoadIdentity();
     gluPerspective(90, (float) width / height, 1, 100);
 }
- 
-/* Crtamo ravan */
-void plot_function(){
-    glPushMatrix();
-    glBegin(GL_POLYGON);
-        glVertex3f(-1, 0, -1);
-        glVertex3f(1, 0, -1);
-        glVertex3f(1, 0, 1);
-        glVertex3f(-1, 0, 1);
-    glEnd();
-    glPopMatrix();
-}
 
 /* Citamo matricu iz datoteke */
 static void readMatrix(){
     FILE* f;
     if(indikator == 0){
         f = fopen("matrica1.txt", "r"); 
-        if(f == NULL){
-            fprintf(stderr, "Greska pri otvaranju datoteke\n");
-            exit(EXIT_FAILURE);
-        }
+        if(f == NULL)
+            ERROR("Citanje matrice");
     }
     else if(indikator == 1){
         f = fopen("matrica2.txt", "r"); 
-        if(f == NULL){
-            fprintf(stderr, "Greska pri otvaranju datoteke\n");
-            exit(EXIT_FAILURE);
-        }
+        if(f == NULL)
+            ERROR("Citanje matrice");
     }
     else if(indikator == 2){
         f = fopen("matrica3.txt", "r"); 
-        if(f == NULL){
-            fprintf(stderr, "Greska pri otvaranju datoteke\n");
-            exit(EXIT_FAILURE);
-        }
+        if(f == NULL)
+            ERROR("Citanje matrice");
     }
     else if(indikator == 3){
         f = fopen("matrica4.txt", "r"); 
-        if(f == NULL){
-            fprintf(stderr, "Greska pri otvaranju datoteke\n");
-            exit(EXIT_FAILURE);
-        }
+        if(f == NULL)
+            ERROR("Citanje matrice");
     }
     else{
         printf("\n*** THE END ***\n\n");
         exit(EXIT_SUCCESS);
     }
     fscanf(f, "%d%d", &n, &m);
-    /*printf("Dimenzije, NxM: %d %d\n\n", n , m);*/
     
     matrix = malloc(n*sizeof(int*));
-    if(matrix == NULL){
-        fprintf(stderr, "Greska pri alociranju matrice 1\n");
-        exit(EXIT_FAILURE);
-    }
+    if(matrix == NULL)
+        ERROR("Alokacija matrice");
     
     for(int k=0; k<n; k++){
         matrix[k] = malloc(m*sizeof(int));
-        if(matrix[k] == NULL){
-            fprintf(stderr, "Greska pri alociranju matrice 2\n");
-            exit(EXIT_FAILURE);
-        }
+        if(matrix[k] == NULL)
+            ERROR("Alokacija matrice");
     }
     for(int k=0; k<n; k++){
         for(int l=0; l<m; l++)
@@ -454,6 +459,15 @@ static void readMatrix(){
 }
 
 static void on_display(void){
+
+    /*Brise se prethodni sadrzaj prozora */ 
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    /*Podesava se vidna tacka */
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt(-1.4+anim_param1/10, 2.7, 2.7+anim_param2/10, 0, 0, 0, 0, 1, 0);
+    
+    /* TODO */
     
     /*Pozicija svetla (u pitanju je direkcionalno svetlo) */
     GLfloat light_position[] = { 0.6, 1.4, 0.9, 0 };
@@ -465,15 +479,7 @@ static void on_display(void){
     GLfloat diffuse_coeffs[] = { 0, 0, 0, 1 };
     GLfloat specular_coeffs[] = { 0, 0, 0, 1 };
     GLfloat shininess = 20;
-
-    /*Brise se prethodni sadrzaj prozora */ 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-    /*Podesava se vidna tacka */
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    gluLookAt(-1.4+anim_param1/10, 2.7, 2.7+anim_param2/10, 0, 0, 0, 0, 1, 0);
-
+    
     /*Ukljucuje se osvjetljenje i podesavaju parametri svetla */ 
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
@@ -549,6 +555,7 @@ static void on_display(void){
                     glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
                     glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
      
+                    /* TODO */
                     glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
                     glRotatef(rotation, 0, 1, 0);
                     glScalef(0.125, 0.125, 0.125);
@@ -556,8 +563,8 @@ static void on_display(void){
                 glPopMatrix();
                 
             }
+            /* Plocice koje oznacavaju rupe */
             else if(matrix[i][j] == 4){
-            /* Igrac */
                 glPushMatrix();
                     diffuse_coeffs[0] = 0.8;
                     diffuse_coeffs[1] = 0.05;
