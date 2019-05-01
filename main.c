@@ -6,6 +6,7 @@
 #define TIMER_INTERVAL 50
 #define TIMER_ID 0
 
+/* Funkcija za obradu gresaka */
 static void error(char* str, int lineNum){
     fprintf(stderr, "Greska: %s u liniji %d\n", str, lineNum);
     exit(EXIT_FAILURE);
@@ -401,6 +402,7 @@ static void on_reshape(int width, int height){
     gluPerspective(90, (float) width / height, 1, 100);
 }
 
+/* Alokacija matrice */
 static void allocMatrix(void){
     matrix = malloc(n*sizeof(int*));
     if(matrix == NULL)
@@ -452,6 +454,7 @@ static void readMatrix(void){
     fclose(f);
 }
 
+/* Oslobadjanje memorije */
 static void freeMatrix(void){
     for(int i=0; i<n; i++){
         free(matrix[i]);
