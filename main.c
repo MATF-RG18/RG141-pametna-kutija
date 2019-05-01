@@ -411,6 +411,20 @@ static void readMatrix(){
             exit(EXIT_FAILURE);
         }
     }
+    else if(indikator == 2){
+        f = fopen("matrica3.txt", "r"); 
+        if(f == NULL){
+            fprintf(stderr, "Greska pri otvaranju datoteke\n");
+            exit(EXIT_FAILURE);
+        }
+    }
+    else if(indikator == 3){
+        f = fopen("matrica4.txt", "r"); 
+        if(f == NULL){
+            fprintf(stderr, "Greska pri otvaranju datoteke\n");
+            exit(EXIT_FAILURE);
+        }
+    }
     else{
         printf("\n*** THE END ***\n\n");
         exit(EXIT_SUCCESS);
