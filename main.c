@@ -13,11 +13,13 @@ static void error(char* str, int lineNum){
 
 #define ERROR(str) error(str, __LINE__);
 
-/* Matrica koja cua poligon */
+/* Matrica koja cuva poligon */
 static int **matrix;
 static int n, m, tren_i, tren_j;
 static int indikator = 0;
-static void readMatrix();
+static void readMatrix(void);
+static void allocMatrix(void);
+static void freeMatrix(void);
 
 /* Globalne promenljive, u svrhe animacija i kretanja kamere */
 static float anim_param = 0;   /* Kretanje plocice */
@@ -131,10 +133,7 @@ static void on_keyboard(unsigned char key, int x, int y){
                 indikator++;
                 
                 /* Oslobadjanje matrice, kako ne bi doslo do curenja memorije */
-                for(int i=0; i<n; i++){
-                    free(matrix[i]);
-                }
-                free(matrix);
+                freeMatrix();
                 /* Naredni nivo */
                 readMatrix();
             }
@@ -203,10 +202,7 @@ static void on_keyboard(unsigned char key, int x, int y){
                 indikator++;
             
                 /* Oslobadjanje matrice, kako ne bi doslo do curenja memorije */
-                for(int i=0; i<n; i++){
-                    free(matrix[i]);
-                }
-                free(matrix);
+                freeMatrix();
                 /* Naredni nivo */
                 readMatrix();
             }
@@ -257,7 +253,6 @@ static void on_keyboard(unsigned char key, int x, int y){
                         }
                     }
                 }
-                
                 anim_param2 += 0.1;
             }
             else if(tren_i<n-2 && tren_i>=0 && tren_j>=0 && tren_j<m 
@@ -279,10 +274,7 @@ static void on_keyboard(unsigned char key, int x, int y){
                 indikator++;
             
                 /* Oslobadjanje matrice, kako ne bi doslo do curenja memorije */
-                for(int i=0; i<n; i++){
-                    free(matrix[i]);
-                }
-                free(matrix);
+                freeMatrix();
                 /* Naredni nivo */
                 readMatrix();
             }
@@ -352,10 +344,7 @@ static void on_keyboard(unsigned char key, int x, int y){
                 indikator++;
             
                 /* Oslobadjanje matrice, kako ne bi doslo do curenja memorije */
-                for(int i=0; i<n; i++){
-                    free(matrix[i]);
-                }
-                free(matrix);
+                freeMatrix();
                 /* Naredni nivo */
                 readMatrix();
             }
@@ -412,8 +401,20 @@ static void on_reshape(int width, int height){
     gluPerspective(90, (float) width / height, 1, 100);
 }
 
+static void allocMatrix(void){
+    matrix = malloc(n*sizeof(int*));
+    if(matrix == NULL)
+        ERROR("Alokacija matrice");
+    
+    for(int i=0; i<n; i++){
+        matrix[i] = malloc(m*sizeof(int));
+        if(matrix[i] == NULL)
+            ERROR("Alokacija matrice");
+    }
+}
+
 /* Citamo matricu iz datoteke */
-static void readMatrix(){
+static void readMatrix(void){
     FILE* f;
     if(indikator == 0){
         f = fopen("matrica1.txt", "r"); 
@@ -441,15 +442,8 @@ static void readMatrix(){
     }
     fscanf(f, "%d%d", &n, &m);
     
-    matrix = malloc(n*sizeof(int*));
-    if(matrix == NULL)
-        ERROR("Alokacija matrice");
+    allocMatrix();
     
-    for(int k=0; k<n; k++){
-        matrix[k] = malloc(m*sizeof(int));
-        if(matrix[k] == NULL)
-            ERROR("Alokacija matrice");
-    }
     for(int k=0; k<n; k++){
         for(int l=0; l<m; l++)
             fscanf(f, "%d", &matrix[k][l]);
@@ -458,16 +452,20 @@ static void readMatrix(){
     fclose(f);
 }
 
-static void on_display(void){
+static void freeMatrix(void){
+    for(int i=0; i<n; i++){
+        free(matrix[i]);
+    }
+    free(matrix);
+}
 
+static void on_display(void){
     /*Brise se prethodni sadrzaj prozora */ 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     /*Podesava se vidna tacka */
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(-1.4+anim_param1/10, 2.7, 2.7+anim_param2/10, 0, 0, 0, 0, 1, 0);
-    
-    /* TODO */
     
     /*Pozicija svetla (u pitanju je direkcionalno svetlo) */
     GLfloat light_position[] = { 0.6, 1.4, 0.9, 0 };
@@ -719,7 +717,7 @@ static void on_display(void){
             
         }
     }
-    glTranslatef(1, -0.1, 0);
+    glTranslatef(1.1, -0.1, 1.05);
     /* Nova slika se salje na ekran. */
     glutSwapBuffers();
 }
