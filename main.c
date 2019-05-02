@@ -11,7 +11,6 @@ static void error(char* str, int lineNum){
     fprintf(stderr, "Greska: %s u liniji %d\n", str, lineNum);
     exit(EXIT_FAILURE);
 }
-
 #define ERROR(str) error(str, __LINE__);
 
 /* Matrica koja cuva poligon */
@@ -32,6 +31,8 @@ static float rotation;         /* Ugao rotacije */
 static int timer_active;
 
 /* Deklaracije callback funkcija. */
+static void on_keyboard_special(int key, int x, int y);
+
 static void on_keyboard(unsigned char key, int x, int y);
 static void on_reshape(int width, int height);
 static void on_display(void);
@@ -48,6 +49,7 @@ int main(int argc, char **argv){
     glutCreateWindow(argv[0]);
 
     /* Registruju se callback funkcije */
+    glutSpecialFunc(on_keyboard_special);
     glutKeyboardFunc(on_keyboard);
     glutReshapeFunc(on_reshape);
     glutDisplayFunc(on_display);
@@ -68,11 +70,10 @@ int main(int argc, char **argv){
     return 0;
 }
 
-static void on_keyboard(unsigned char key, int x, int y){
+static void on_keyboard_special(int key, int x, int y){
     switch (key) {
         /* Levo */
-        case 'a':
-        case 'A':
+        case GLUT_KEY_LEFT:
             if(tren_i<n && tren_i>=0 && tren_j>=1 && tren_j<m  /* Prazno polje */
                && matrix[tren_i][tren_j-1] == 0){
                 
@@ -141,8 +142,7 @@ static void on_keyboard(unsigned char key, int x, int y){
             glutPostRedisplay();
             break;
         /* Desno */
-        case 'd':
-        case 'D':
+        case GLUT_KEY_RIGHT:
             if(tren_i>=0 && tren_i<n && tren_j>=0 && tren_j<m-1 
                && matrix[tren_i][tren_j+1] == 0){
                 
@@ -211,8 +211,7 @@ static void on_keyboard(unsigned char key, int x, int y){
             glutPostRedisplay();
             break;
         /* Dole */
-        case 's':
-        case 'S':
+        case GLUT_KEY_DOWN:
             if(tren_i>=0 && tren_i<n-1 && tren_j>=0 && tren_j<m 
                && matrix[tren_i+1][tren_j] == 0){
                 
@@ -282,8 +281,7 @@ static void on_keyboard(unsigned char key, int x, int y){
             glutPostRedisplay();
             break;
         /* Gore */
-        case 'w':
-        case 'W':
+        case GLUT_KEY_UP:
             if(tren_i>=1 && tren_i<n && tren_j>=0 && tren_j<m 
                && matrix[tren_i-1][tren_j] == 0){
                 
@@ -351,6 +349,11 @@ static void on_keyboard(unsigned char key, int x, int y){
             }
             glutPostRedisplay();
             break;
+    }
+}
+
+static void on_keyboard(unsigned char key, int x, int y){
+    switch (key) {
         /* Pokrece se simulacija */
         case 'g':
         case 'G':
@@ -373,7 +376,6 @@ static void on_keyboard(unsigned char key, int x, int y){
             timer_active = 0;
             exit(0);
             break;
-        
     }
 }
 
