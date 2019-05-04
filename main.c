@@ -30,6 +30,8 @@ static float rotation;         /* Ugao rotacije */
 
 /* Fleg koji odredjuje stanje tajmera. */
 static int timer_active;
+static void init_lights();
+static void set_material();
 
 /* Deklaracije callback funkcija. */
 static void on_keyboard_special(int key, int x, int y);
@@ -475,19 +477,9 @@ static void on_display(void){
     glLoadIdentity();
     gluLookAt(-1.4+anim_param1/10, 2.7, 2.7+anim_param2/10, 0, 0, 0, 0, 1, 0);
     
-    /* Ukljucujemo svetlo */
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
-    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-    glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
-    
-    /* Podesavaju se parametri materijala. */
-    glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, specular_coeffs);
-    glMaterialf(GL_FRONT, GL_SHININESS, shininess);
+    /* Osvetljenje i materijal se podesavaju */
+    init_lights();
+    set_material();
     
     glShadeModel(GL_SMOOTH);
 
@@ -717,4 +709,23 @@ static void on_display(void){
     glTranslatef(1.1, -0.1, 1.05);
     /* Nova slika se salje na ekran. */
     glutSwapBuffers();
+}
+
+static void init_lights(){
+    /* Ukljucuje se osvjetljenje i podesavaju parametri svetla. */
+    glEnable(GL_LIGHTING);
+    glEnable(GL_LIGHT0);
+    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
+    glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
+    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
+    glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+}
+
+
+static void set_material(){
+    /* Podesavaju se parametri materijala. */
+    glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
+    glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
+    glMaterialfv(GL_FRONT, GL_SPECULAR, specular_coeffs);
+    glMaterialf(GL_FRONT, GL_SHININESS, shininess);
 }
