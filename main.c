@@ -2,6 +2,7 @@
 #include<stdlib.h>
 #include<GL/glut.h>
 #include<math.h>
+#include"light.h"
 
 #define TIMER_INTERVAL 50
 #define TIMER_ID 0
@@ -465,38 +466,29 @@ static void freeMatrix(void){
 }
 
 static void on_display(void){
+    glutFullScreen();
     /*Brise se prethodni sadrzaj prozora */ 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    
     /*Podesava se vidna tacka */
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(-1.4+anim_param1/10, 2.7, 2.7+anim_param2/10, 0, 0, 0, 0, 1, 0);
     
-    /*Pozicija svetla (u pitanju je direkcionalno svetlo) */
-    GLfloat light_position[] = { 0.6, 1.4, 0.9, 0 };
-    GLfloat light_ambient[] = { 0.2, 0.2, 0.2, 1 };
-    GLfloat light_diffuse[] = { 0.7, 0.7, 0.7, 1 };
-    GLfloat light_specular[] = { 0.9, 0.9, 0.9, 1 };
-
-    GLfloat ambient_coeffs[] = { 0, 0, 0, 1 };
-    GLfloat diffuse_coeffs[] = { 0, 0, 0, 1 };
-    GLfloat specular_coeffs[] = { 0, 0, 0, 1 };
-    GLfloat shininess = 20;
-    
-    /*Ukljucuje se osvjetljenje i podesavaju parametri svetla */ 
+    /* Ukljucujemo svetlo */
     glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
     glLightfv(GL_LIGHT0, GL_POSITION, light_position);
     glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
     glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
-
-    /*Podesavaju se parametri materijala */ 
+    
+    /* Podesavaju se parametri materijala. */
     glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
     glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
     glMaterialfv(GL_FRONT, GL_SPECULAR, specular_coeffs);
     glMaterialf(GL_FRONT, GL_SHININESS, shininess);
-
+    
     glShadeModel(GL_SMOOTH);
 
     /* Transliramo mapu */
