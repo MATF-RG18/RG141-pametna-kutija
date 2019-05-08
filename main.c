@@ -5,6 +5,8 @@
 #include"SOIL.h"
 #include"lights.h"
 
+static int id = 0;
+
 /* Funkcija za obradu gresaka i njen makro */
 static void error(char* str, int lineNum){
     fprintf(stderr, "Greska: %s u liniji %d\n", str, lineNum);
@@ -31,7 +33,7 @@ static float rotation;         /* Ugao rotacije */
 #define TIMER_ID 0
 static int timer_active = 1;
 /* Teksture, inicijalizacija, promenljiva koja cuva  t. */
-GLuint name;
+GLuint name, end;
 void init_tex();
 
 /* Deklaracije callback funkcija. */
@@ -399,7 +401,7 @@ static void on_reshape(int width, int height){
     /* Podesava se projekcija */
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(90, (float) width/height, 1, 100);
+    gluPerspective(90, (float) width/height, 1, 150);
 }
 
 static void on_display(void){
@@ -416,153 +418,185 @@ static void on_display(void){
     init_lights();
     glShadeModel(GL_SMOOTH);
 
-    glEnable(GL_TEXTURE_2D);
-    glBindTexture(GL_TEXTURE_2D, name);
-    glBegin(GL_QUADS);
-        glNormal3f(0, 1, 0);
+    if(id == 0){
+        glTranslatef(0, 0, 0.15);
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, name);
+        glBegin(GL_QUADS);
+            glNormal3f(0, 1, 0);
 
-        glTexCoord2f(0, 0);
-        glVertex3f(-2.0*m/10.0, 0, 2.0*n/10.0);
+            glTexCoord2f(0, 0);
+            glVertex3f(-2.0*m/10.0, 0, 2.0*n/10.0);
 
-        glTexCoord2f(5, 0);
-        glVertex3f(2.0*m/10.0, 0, 2.0*n/10.0);
+            glTexCoord2f(5, 0);
+            glVertex3f(2.0*m/10.0, 0, 2.0*n/10.0);
 
-        glTexCoord2f(5, 5);
-        glVertex3f(2.0*m/10.0, 0, -2.0*n/10.0);
+            glTexCoord2f(5, 5);
+            glVertex3f(2.0*m/10.0, 0, -2.0*n/10.0);
 
-        glTexCoord2f(0, 5);
-        glVertex3f(-2.0*m/10.0, 0, -2.0*n/10.0);
-    glEnd();
-    glDisable(GL_TEXTURE_2D);
-    glEnable(GL_COLOR_MATERIAL); 
-    
-    /* Transliramo mapu */
-    glScalef(1.6, 1.6, 1.6);
-    glTranslatef(-1.1, 0.1, -1.05);
-    /*glColor3f(0.5, 0, 0.5);
-    plot_function();*/
-    
-    /* Iscrtavamo mapu/teren pomocu matrice */
-    for(int i=0; i<n; i++){
-        for(int j=0; j<m; j++){
-            
-            /* Zidovi */
-            if(matrix[i][j] == 1){
-                glPushMatrix();
-                    glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
-                    glColor3f(1, 0.5, 0.5);
-                    glutSolidCube(0.2);
-                glPopMatrix();
+            glTexCoord2f(0, 5);
+            glVertex3f(-2.0*m/10.0, 0, -2.0*n/10.0);
+        glEnd();
+        glDisable(GL_TEXTURE_2D);
+        glEnable(GL_COLOR_MATERIAL);
+        
+        glTranslatef(0, 0, -0.15);
+        /* Transliramo mapu */
+        glScalef(1.6, 1.6, 1.6);
+        glTranslatef(-1.1, 0.1, -1.05);
+        /*glColor3f(0.5, 0, 0.5);
+        plot_function();*/
+        
+        /* Iscrtavamo mapu/teren pomocu matrice */
+        for(int i=0; i<n; i++){
+            for(int j=0; j<m; j++){
                 
-            }
-            /* Kutije koje igrac moze da pomera */
-            else if(matrix[i][j] == 2){
-                 glPushMatrix();
-                    glColor3f(0.75, 0.05, 0.6);
-                    glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
-                    glutSolidCube(0.2);
-                glPopMatrix();
-            }
-            /* Cilj */
-            else if(matrix[i][j] == 3){
-                glPushMatrix();
-                    /* TODO */
-                    glColor3f(1, 1, 0);
-                    glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
-                    glRotatef(rotation, 0, 1, 0);
-                    glScalef(0.125, 0.125, 0.125);
-                    glutSolidIcosahedron();
-                glPopMatrix();
-                
-            }
-            /* Plocice koje oznacavaju rupe */
-            else if(matrix[i][j] == 4){
-                glPushMatrix();
-                    glColor3f(0,0,0);
-                
-                    glTranslatef(((float)j/10.0)*2.0, 0+sin(anim_param)/8, ((float)i/10.0)*2.0);
-                    glBegin(GL_POLYGON);
-                      glVertex3f(-0.1, 0.2, -0.1);
-                      glVertex3f(0.1, 0.2, -0.1);
-                      glVertex3f(0.1, 0.2, 0.1);
-                      glVertex3f(-0.1, 0.2, 0.1);
-                    glEnd();
-                glPopMatrix();
-            }
-            /* Igrac */
-            else if(matrix[i][j] == 5){
-                tren_i = i;
-                tren_j = j;
-                glPushMatrix();
-                    glColor3f(0.01, 0.7, 0.85);
-                    glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
-                    glutSolidCube(0.2);
+                /* Zidovi */
+                if(matrix[i][j] == 1){
+                    glPushMatrix();
+                        glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
+                        glColor3f(1, 0.5, 0.5);
+                        glutSolidCube(0.2);
+                    glPopMatrix();
                     
-                glPopMatrix();
-                
-            }
-            /* Drvece */
-            else if(matrix[i][j] == 6){
-                /* Stablo */
-                glPushMatrix();
-                    glColor3f(0.8, 0.2, 0.0);
-                    glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
-                    glScalef(0.5, 1, 0.5);
-                    glutSolidCube(0.2);
-                glPopMatrix();
-                /* Krosnja */
-                glPushMatrix();
-                
-                    glColor3f(0, 0.8, 0.2);
-                    glTranslatef(((float)j/10.0)*2.0, 0.2, ((float)i/10.0)*2.0);
-                    glScalef(1.1, 1.5, 1.1);
+                }
+                /* Kutije koje igrac moze da pomera */
+                else if(matrix[i][j] == 2){
+                    glPushMatrix();
+                        glColor3f(0.75, 0.05, 0.6);
+                        glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
+                        glutSolidCube(0.2);
+                    glPopMatrix();
+                }
+                /* Cilj */
+                else if(matrix[i][j] == 3){
+                    glPushMatrix();
+                        /* TODO */
+                        glColor3f(1, 1, 0);
+                        glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
+                        glRotatef(rotation, 0, 1, 0);
+                        glScalef(0.125, 0.125, 0.125);
+                        glutSolidIcosahedron();
+                    glPopMatrix();
                     
-                    double clip_plane1[] = {0, -0.1, 0, 0};
-                    glClipPlane(GL_CLIP_PLANE0, clip_plane1);
-                    glEnable(GL_CLIP_PLANE0);
+                }
+                /* Plocice koje oznacavaju rupe */
+                else if(matrix[i][j] == 4){
+                    glPushMatrix();
+                        glColor3f(0,0,0);
                     
-                    glutSolidCube(0.2);
+                        glTranslatef(((float)j/10.0)*2.0, 0+sin(anim_param)/8, ((float)i/10.0)*2.0);
+                        glBegin(GL_POLYGON);
+                        glVertex3f(-0.1, 0.2, -0.1);
+                        glVertex3f(0.1, 0.2, -0.1);
+                        glVertex3f(0.1, 0.2, 0.1);
+                        glVertex3f(-0.1, 0.2, 0.1);
+                        glEnd();
+                    glPopMatrix();
+                }
+                /* Igrac */
+                else if(matrix[i][j] == 5){
+                    tren_i = i;
+                    tren_j = j;
+                    glPushMatrix();
+                        glColor3f(0.01, 0.7, 0.85);
+                        glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
+                        glutSolidCube(0.2);
+                        
+                    glPopMatrix();
                     
-                    glDisable(GL_CLIP_PLANE0);
-                glPopMatrix();
-                glPushMatrix();
-                    glColor3f(0, 0.6, 0.2);
-                    glTranslatef(((float)j/10.0)*2.0, 0.2, ((float)i/10.0)*2.0);
-                    glScalef(1.1, 1.5, 1.1);
+                }
+                /* Drvece */
+                else if(matrix[i][j] == 6){
+                    /* Stablo */
+                    glPushMatrix();
+                        glColor3f(0.8, 0.2, 0.0);
+                        glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
+                        glScalef(0.5, 1, 0.5);
+                        glutSolidCube(0.2);
+                    glPopMatrix();
+                    /* Krosnja */
+                    glPushMatrix();
                     
-                    double clip_plane2[] = {0, 0.1, 0, 0};
+                        glColor3f(0, 0.8, 0.2);
+                        glTranslatef(((float)j/10.0)*2.0, 0.2, ((float)i/10.0)*2.0);
+                        glScalef(1.1, 1.5, 1.1);
+                        
+                        double clip_plane1[] = {0, -0.1, 0, 0};
+                        glClipPlane(GL_CLIP_PLANE0, clip_plane1);
+                        glEnable(GL_CLIP_PLANE0);
+                        
+                        glutSolidCube(0.2);
+                        
+                        glDisable(GL_CLIP_PLANE0);
+                    glPopMatrix();
+                    glPushMatrix();
+                        glColor3f(0, 0.6, 0.2);
+                        glTranslatef(((float)j/10.0)*2.0, 0.2, ((float)i/10.0)*2.0);
+                        glScalef(1.1, 1.5, 1.1);
+                        
+                        double clip_plane2[] = {0, 0.1, 0, 0};
 
-                    glClipPlane(GL_CLIP_PLANE0, clip_plane2);
-                    glEnable(GL_CLIP_PLANE0);
-                     glutSolidCube(0.2);
-                    glDisable(GL_CLIP_PLANE0);
-                glPopMatrix();
+                        glClipPlane(GL_CLIP_PLANE0, clip_plane2);
+                        glEnable(GL_CLIP_PLANE0);
+                        glutSolidCube(0.2);
+                        glDisable(GL_CLIP_PLANE0);
+                    glPopMatrix();
+                }
+                /* Vrata */
+                else if(matrix[i][j] == 7){
+                    glPushMatrix();
+                        glColor3f(1, 0.1, 0);
+                        glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
+                        glScalef(1.5, 2.2, 0.25);
+                        glutSolidCube(0.1);
+                        
+                    glPopMatrix();
+                }
+                /* Kljuc koji otvara vrata */
+                else if(matrix[i][j] == 8){
+                    glPushMatrix();
+                        glColor3f(1, 0.1, 0);
+                        glTranslatef(((float)j/10.0)*2.0, 0.1, ((float)i/10.0)*2.0);
+                        glRotatef(rotation, 1, 1, 0);
+                        glutSolidCube(0.1);
+                        
+                    glPopMatrix();
+                }
+                else 
+                    continue;
             }
-            /* Vrata */
-            else if(matrix[i][j] == 7){
-                glPushMatrix();
-                    glColor3f(1, 0.1, 0);
-                    glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
-                    glScalef(1.5, 2.2, 0.25);
-                    glutSolidCube(0.1);
-                    
-                glPopMatrix();
-            }
-            /* Kljuc koji otvara vrata */
-            else if(matrix[i][j] == 8){
-                glPushMatrix();
-                    glColor3f(1, 0.1, 0);
-                    glTranslatef(((float)j/10.0)*2.0, 0.1, ((float)i/10.0)*2.0);
-                    glRotatef(rotation, 1, 1, 0);
-                    glutSolidCube(0.1);
-                    
-                glPopMatrix();
-            }
-            else 
-                continue;
         }
+        glTranslatef(1.1, -0.1, 1.05);
     }
-    glTranslatef(1.1, -0.1, 1.05);
+    else{
+        glLoadIdentity();
+        gluLookAt(-1, 0, 0, 
+                   0, 0, 0, 
+                   0, 1, 0);
+        glTranslatef(0,-70,0);
+        glEnable(GL_TEXTURE_2D);
+        glBindTexture(GL_TEXTURE_2D, end);
+        glBegin(GL_QUADS);
+            glNormal3f(1, -1, 1);
+
+            glTexCoord2f(0, 0);
+            glVertex3f(90, 0, -90);
+ 
+            glTexCoord2f(1, 0);
+            glVertex3f(90, 0, 90);
+   
+           glTexCoord2f(1, 1);
+           glVertex3f(90, 140, 90);
+
+           glTexCoord2f(0, 1);
+           glVertex3f(90, 140, -90);
+        glEnd();
+        glDisable(GL_TEXTURE_2D);
+        glEnable(GL_COLOR_MATERIAL);
+        glClearColor(0, 0, 0, 0);
+    }
+    
     /* Nova slika se salje na ekran. */
     glutSwapBuffers();
 }
@@ -603,9 +637,16 @@ static void readMatrix(void){
         if(f == NULL)
             ERROR("Citanje matrice");
     }
+    else if(indikator == 4){
+        f = fopen("./Matrice/matrica5.txt", "r"); 
+        if(f == NULL)
+            ERROR("Citanje matrice");
+    }
     else{
         printf("\n*** THE END ***\n\n");
-        exit(EXIT_SUCCESS);
+        id++;
+        glutPostRedisplay();
+        return;
     }
     fscanf(f, "%d%d", &n, &m);
     
@@ -643,6 +684,31 @@ void init_tex(){
     }
 
     glBindTexture(GL_TEXTURE_2D, name);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    /* Iskljucujemo aktivnu teksturu */
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+    
+    glTexEnvf(GL_TEXTURE_ENV, 
+              GL_TEXTURE_ENV_MODE, 
+              GL_REPLACE);
+
+    end = SOIL_load_OGL_texture("./Teksture/theend.png", 
+                                SOIL_LOAD_AUTO, 
+                                SOIL_CREATE_NEW_ID, 
+                                SOIL_FLAG_INVERT_Y);
+    if(end == 0){
+        printf("%s\n", SOIL_last_result());
+        ERROR("Nije ucitana tekstura");
+    }
+
+    glBindTexture(GL_TEXTURE_2D, end);
     glTexParameteri(GL_TEXTURE_2D,
                     GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D,
