@@ -2,19 +2,17 @@
 #include<stdlib.h>
 #include<GL/glut.h>
 #include<math.h>
-#include "SOIL.h"
-#include "lights.h"
-#define TIMER_INTERVAL 50
-#define TIMER_ID 0
+#include"SOIL.h"
+#include"lights.h"
 
-/* Funkcija za obradu gresaka */
+/* Funkcija za obradu gresaka i njen makro */
 static void error(char* str, int lineNum){
     fprintf(stderr, "Greska: %s u liniji %d\n", str, lineNum);
     exit(EXIT_FAILURE);
 }
 #define ERROR(str) error(str, __LINE__);
 
-/* Matrica koja cuva poligon */
+/* Matrica koja cuva poligon i neophodne fje i informacije za matricu */
 static int **matrix;
 static int n, m, tren_i, tren_j;
 static int indikator = 0;
@@ -28,10 +26,10 @@ static float anim_param1 = 0;  /* Pomeranje kamere */
 static float anim_param2 = 0;  /* Pomeranje kamere */
 static float rotation;         /* Ugao rotacije */
 
-/* Fleg koji odredjuje stanje tajmera. */
+/* Makroi ya tajmer i fleg koji odredjuje stanje tajmera. */
+#define TIMER_INTERVAL 50
+#define TIMER_ID 0
 static int timer_active = 1;
-static void init_lights();
-
 /* Teksture, inicijalizacija, promenljiva koja cuva  t. */
 GLuint name;
 void init_tex();
@@ -77,31 +75,7 @@ int main(int argc, char **argv){
     return 0;
 }
 
-void init_tex(){
-    glEnable(GL_TEXTURE_2D);
-    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
-
-    name = SOIL_load_OGL_texture("./cvece2.png", 
-                                SOIL_LOAD_AUTO, 
-                                SOIL_CREATE_NEW_ID, 
-                                SOIL_FLAG_INVERT_Y);
-    if(name == 0){
-        printf("%s\n", SOIL_last_result());
-        ERROR("Nije ucitana tekstura");
-    }
-
-    glBindTexture(GL_TEXTURE_2D, name);
-    glTexParameteri(GL_TEXTURE_2D,
-                    GL_TEXTURE_WRAP_S, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D,
-                    GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-
-    /* Iskljucujemo aktivnu teksturu */
-    glBindTexture(GL_TEXTURE_2D, 0);
-}
-
+/* Kretanje pomocu strelica na tastaturi */
 static void on_keyboard_special(int key, int x, int y){
     switch (key) {
         /* Levo */
@@ -428,67 +402,6 @@ static void on_reshape(int width, int height){
     gluPerspective(90, (float) width/height, 1, 100);
 }
 
-/* Alokacija matrice */
-static void allocMatrix(void){
-    matrix = malloc(n*sizeof(int*));
-    if(matrix == NULL)
-        ERROR("Alokacija matrice");
-    
-    for(int i=0; i<n; i++){
-        matrix[i] = malloc(m*sizeof(int));
-        if(matrix[i] == NULL)
-            ERROR("Alokacija matrice");
-    }
-}
-
-/* Citamo matricu iz datoteke */
-static void readMatrix(void){
-    FILE* f;
-    if(indikator == 0){
-        f = fopen("matrica1.txt", "r"); 
-        if(f == NULL)
-            ERROR("Citanje matrice");
-    }
-    else if(indikator == 1){
-        f = fopen("matrica2.txt", "r"); 
-        if(f == NULL)
-            ERROR("Citanje matrice");
-    }
-    else if(indikator == 2){
-        f = fopen("matrica3.txt", "r"); 
-        if(f == NULL)
-            ERROR("Citanje matrice");
-    }
-    else if(indikator == 3){
-        f = fopen("matrica4.txt", "r"); 
-        if(f == NULL)
-            ERROR("Citanje matrice");
-    }
-    else{
-        printf("\n*** THE END ***\n\n");
-        exit(EXIT_SUCCESS);
-    }
-    fscanf(f, "%d%d", &n, &m);
-    
-    allocMatrix();
-    
-    for(int k=0; k<n; k++){
-        for(int l=0; l<m; l++)
-            fscanf(f, "%d", &matrix[k][l]);
-    }
-    
-    fclose(f);
-}
-
-/* Oslobadjanje memorije */
-static void freeMatrix(void){
-    for(int i=0; i<n; i++){
-        free(matrix[i]);
-    }
-    free(matrix);
-}
-
-
 static void on_display(void){
     glutFullScreen();
     /*Brise se prethodni sadrzaj prozora */ 
@@ -614,9 +527,6 @@ static void on_display(void){
                 glPopMatrix();
                 glPushMatrix();
                     glColor3f(0, 0.6, 0.2);
-                    glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
-                    glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
-                    
                     glTranslatef(((float)j/10.0)*2.0, 0.2, ((float)i/10.0)*2.0);
                     glScalef(1.1, 1.5, 1.1);
                     
@@ -657,12 +567,89 @@ static void on_display(void){
     glutSwapBuffers();
 }
 
-static void init_lights(){
-    /* Ukljucuje se osvjetljenje i podesavaju parametri svetla. */
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
-    glLightfv(GL_LIGHT0, GL_POSITION, light_position);
-    glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
-    glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
-    glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
+/* Alokacija matrice */
+static void allocMatrix(void){
+    matrix = malloc(n*sizeof(int*));
+    if(matrix == NULL)
+        ERROR("Alokacija matrice");
+    
+    for(int i=0; i<n; i++){
+        matrix[i] = malloc(m*sizeof(int));
+        if(matrix[i] == NULL)
+            ERROR("Alokacija matrice");
+    }
+}
+
+/* Citamo matricu iz datoteke */
+static void readMatrix(void){
+    FILE* f;
+    if(indikator == 0){
+        f = fopen("./Matrice/matrica1.txt", "r"); 
+        if(f == NULL)
+            ERROR("Citanje matrice");
+    }
+    else if(indikator == 1){
+        f = fopen("./Matrice/matrica2.txt", "r"); 
+        if(f == NULL)
+            ERROR("Citanje matrice");
+    }
+    else if(indikator == 2){
+        f = fopen("./Matrice/matrica3.txt", "r"); 
+        if(f == NULL)
+            ERROR("Citanje matrice");
+    }
+    else if(indikator == 3){
+        f = fopen("./Matrice/matrica4.txt", "r"); 
+        if(f == NULL)
+            ERROR("Citanje matrice");
+    }
+    else{
+        printf("\n*** THE END ***\n\n");
+        exit(EXIT_SUCCESS);
+    }
+    fscanf(f, "%d%d", &n, &m);
+    
+    allocMatrix();
+    
+    for(int k=0; k<n; k++){
+        for(int l=0; l<m; l++)
+            fscanf(f, "%d", &matrix[k][l]);
+    }
+    
+    fclose(f);
+}
+
+/* Oslobadjanje memorije */
+static void freeMatrix(void){
+    for(int i=0; i<n; i++){
+        free(matrix[i]);
+    }
+    free(matrix);
+}
+
+/* Tekstura */
+void init_tex(){
+    glEnable(GL_TEXTURE_2D);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+    name = SOIL_load_OGL_texture("./Teksture/cvece.png", 
+                                SOIL_LOAD_AUTO, 
+                                SOIL_CREATE_NEW_ID, 
+                                SOIL_FLAG_INVERT_Y);
+    /* U slucaju da ucitavanje strukture nije uspelo, ispisati vrstu greske i prekinuti program */
+    if(name == 0){
+        printf("%s\n", SOIL_last_result());
+        ERROR("Nije ucitana tekstura");
+    }
+
+    glBindTexture(GL_TEXTURE_2D, name);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    /* Iskljucujemo aktivnu teksturu */
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
