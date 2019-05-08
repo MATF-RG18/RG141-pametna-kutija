@@ -425,10 +425,10 @@ static void on_display(void){
         glVertex3f(-2.0*m/10.0, 0, 2.0*n/10.0);
 
         glTexCoord2f(5, 0);
-        glVertex3f(2.0*m/10.0+0.1, 0, 2.0*n/10.0+0.1);
+        glVertex3f(2.0*m/10.0, 0, 2.0*n/10.0);
 
         glTexCoord2f(5, 5);
-        glVertex3f(2.0*m/10.0+0.1, 0, -2.0*n/10.0+0.1);
+        glVertex3f(2.0*m/10.0, 0, -2.0*n/10.0);
 
         glTexCoord2f(0, 5);
         glVertex3f(-2.0*m/10.0, 0, -2.0*n/10.0);
