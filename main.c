@@ -2,8 +2,8 @@
 #include<stdlib.h>
 #include<GL/glut.h>
 #include<math.h>
-#include"light.h"
-
+#include "SOIL.h"
+#include "lights.h"
 #define TIMER_INTERVAL 50
 #define TIMER_ID 0
 
@@ -29,13 +29,15 @@ static float anim_param2 = 0;  /* Pomeranje kamere */
 static float rotation;         /* Ugao rotacije */
 
 /* Fleg koji odredjuje stanje tajmera. */
-static int timer_active;
+static int timer_active = 1;
 static void init_lights();
-static void set_material();
+
+/* Teksture, inicijalizacija, promenljiva koja cuva  t. */
+GLuint name;
+void init_tex();
 
 /* Deklaracije callback funkcija. */
 static void on_keyboard_special(int key, int x, int y);
-
 static void on_keyboard(unsigned char key, int x, int y);
 static void on_reshape(int width, int height);
 static void on_display(void);
@@ -44,10 +46,10 @@ static void on_timer(int value);
 int main(int argc, char **argv){
     /* Inicijalizuje se GLUT */
     glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_RGB | GLUT_DEPTH | GLUT_DOUBLE);
+    glutInitDisplayMode(GLUT_RGBA | GLUT_DEPTH | GLUT_DOUBLE);
 
     /* Kreira se prozor */
-    glutInitWindowSize(700, 550);
+    glutInitWindowSize(800, 600);
     glutInitWindowPosition(300, 50);
     glutCreateWindow(argv[0]);
 
@@ -57,20 +59,47 @@ int main(int argc, char **argv){
     glutReshapeFunc(on_reshape);
     glutDisplayFunc(on_display);
 
-    /* Obavlja se OpenGL inicijalizacija */
-    glClearColor(1, 1, 0.8, 0);
-    glEnable(GL_DEPTH_TEST);
-
-    /* Poligon prvog nivoa */
-    readMatrix();
+    glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
     
+    /* Obavlja se OpenGL inicijalizacija */
+    glClearColor(0.5, 0.9, 1, 0);
+    glEnable(GL_DEPTH_TEST);
     /* Ukljucujemo normalizaciju vektora normala */
     glEnable(GL_NORMALIZE);
-
+    
+    /* Poligon prvog nivoa */
+    readMatrix();
+    /* Inicijalizujemo teksturu */
+    init_tex();
     /* Program ulazi u glavnu petlju */
     glutMainLoop();
 
     return 0;
+}
+
+void init_tex(){
+    glEnable(GL_TEXTURE_2D);
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+    name = SOIL_load_OGL_texture("./cvece2.png", 
+                                SOIL_LOAD_AUTO, 
+                                SOIL_CREATE_NEW_ID, 
+                                SOIL_FLAG_INVERT_Y);
+    if(name == 0){
+        printf("%s\n", SOIL_last_result());
+        ERROR("Nije ucitana tekstura");
+    }
+
+    glBindTexture(GL_TEXTURE_2D, name);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+
+    /* Iskljucujemo aktivnu teksturu */
+    glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 static void on_keyboard_special(int key, int x, int y){
@@ -357,14 +386,6 @@ static void on_keyboard_special(int key, int x, int y){
 
 static void on_keyboard(unsigned char key, int x, int y){
     switch (key) {
-        /* Pokrece se simulacija */
-        case 'g':
-        case 'G':
-            if (!timer_active) {
-                glutTimerFunc(TIMER_INTERVAL, on_timer, TIMER_ID);
-                timer_active = 1;
-            }
-            break;
         /* restart */
         case 'r':
             anim_param = 0;
@@ -404,7 +425,7 @@ static void on_reshape(int width, int height){
     /* Podesava se projekcija */
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(90, (float) width / height, 1, 100);
+    gluPerspective(90, (float) width/height, 1, 100);
 }
 
 /* Alokacija matrice */
@@ -467,6 +488,7 @@ static void freeMatrix(void){
     free(matrix);
 }
 
+
 static void on_display(void){
     glutFullScreen();
     /*Brise se prethodni sadrzaj prozora */ 
@@ -476,16 +498,36 @@ static void on_display(void){
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     gluLookAt(-1.4+anim_param1/10, 2.7, 2.7+anim_param2/10, 0, 0, 0, 0, 1, 0);
-    
+
     /* Osvetljenje i materijal se podesavaju */
     init_lights();
-    set_material();
-    
     glShadeModel(GL_SMOOTH);
 
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, name);
+    glBegin(GL_QUADS);
+        glNormal3f(0, 1, 0);
+
+        glTexCoord2f(0, 0);
+        glVertex3f(-2.0*m/10.0, 0, 2.0*n/10.0);
+
+        glTexCoord2f(5, 0);
+        glVertex3f(2.0*m/10.0+0.1, 0, 2.0*n/10.0+0.1);
+
+        glTexCoord2f(5, 5);
+        glVertex3f(2.0*m/10.0+0.1, 0, -2.0*n/10.0+0.1);
+
+        glTexCoord2f(0, 5);
+        glVertex3f(-2.0*m/10.0, 0, -2.0*n/10.0);
+    glEnd();
+    glDisable(GL_TEXTURE_2D);
+    glEnable(GL_COLOR_MATERIAL); 
+    
     /* Transliramo mapu */
     glScalef(1.6, 1.6, 1.6);
     glTranslatef(-1.1, 0.1, -1.05);
+    /*glColor3f(0.5, 0, 0.5);
+    plot_function();*/
     
     /* Iscrtavamo mapu/teren pomocu matrice */
     for(int i=0; i<n; i++){
@@ -494,18 +536,8 @@ static void on_display(void){
             /* Zidovi */
             if(matrix[i][j] == 1){
                 glPushMatrix();
-                    diffuse_coeffs[0] = 0.8;
-                    diffuse_coeffs[1] = 0.1;
-                    diffuse_coeffs[2] = 0.1;
-                    
-                    ambient_coeffs[0] = 0.7;
-                    ambient_coeffs[1] = 0.7;
-                    ambient_coeffs[2] = 0.7;
-      
-                    glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
-                    glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
-     
                     glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
+                    glColor3f(1, 0.5, 0.5);
                     glutSolidCube(0.2);
                 glPopMatrix();
                 
@@ -513,17 +545,7 @@ static void on_display(void){
             /* Kutije koje igrac moze da pomera */
             else if(matrix[i][j] == 2){
                  glPushMatrix();
-                    diffuse_coeffs[0] = 0.9;
-                    diffuse_coeffs[1] = 0.1;
-                    diffuse_coeffs[2] = 0.6;
-                    
-                    ambient_coeffs[0] = 0.7;
-                    ambient_coeffs[1] = 0.5;
-                    ambient_coeffs[2] = 0.6;
-      
-                    glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
-                    glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
-     
+                    glColor3f(0.75, 0.05, 0.6);
                     glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
                     glutSolidCube(0.2);
                 glPopMatrix();
@@ -531,18 +553,8 @@ static void on_display(void){
             /* Cilj */
             else if(matrix[i][j] == 3){
                 glPushMatrix();
-                    diffuse_coeffs[0] = 0.85;
-                    diffuse_coeffs[1] = 0.85;
-                    diffuse_coeffs[2] = 0.0;
-                    
-                    ambient_coeffs[0] = 0.9;
-                    ambient_coeffs[1] = 0.9;
-                    ambient_coeffs[2] = 1;
-      
-                    glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
-                    glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
-     
                     /* TODO */
+                    glColor3f(1, 1, 0);
                     glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
                     glRotatef(rotation, 0, 1, 0);
                     glScalef(0.125, 0.125, 0.125);
@@ -553,17 +565,8 @@ static void on_display(void){
             /* Plocice koje oznacavaju rupe */
             else if(matrix[i][j] == 4){
                 glPushMatrix();
-                    diffuse_coeffs[0] = 0.8;
-                    diffuse_coeffs[1] = 0.05;
-                    diffuse_coeffs[2] = 0.8;
-                    
-                    ambient_coeffs[0] = 0.6;
-                    ambient_coeffs[1] = 0.6;
-                    ambient_coeffs[2] = 0.6;
-      
-                    glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
-                    glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
-     
+                    glColor3f(0,0,0);
+                
                     glTranslatef(((float)j/10.0)*2.0, 0+sin(anim_param)/8, ((float)i/10.0)*2.0);
                     glBegin(GL_POLYGON);
                       glVertex3f(-0.1, 0.2, -0.1);
@@ -578,17 +581,7 @@ static void on_display(void){
                 tren_i = i;
                 tren_j = j;
                 glPushMatrix();
-                    diffuse_coeffs[0] = 0;
-                    diffuse_coeffs[1] = 0.8;
-                    diffuse_coeffs[2] = 1;
-                    
-                    ambient_coeffs[0] = 0.5;
-                    ambient_coeffs[1] = 0.5;
-                    ambient_coeffs[2] = 0.5;
-      
-                    glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
-                    glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
-     
+                    glColor3f(0.01, 0.7, 0.85);
                     glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
                     glutSolidCube(0.2);
                     
@@ -599,34 +592,15 @@ static void on_display(void){
             else if(matrix[i][j] == 6){
                 /* Stablo */
                 glPushMatrix();
-                    diffuse_coeffs[0] = 0.8;
-                    diffuse_coeffs[1] = 0.2;
-                    diffuse_coeffs[2] = 0.1;
-                    
-                    ambient_coeffs[0] = 0.3;
-                    ambient_coeffs[1] = 0.3;
-                    ambient_coeffs[2] = 0.3;
-      
-                    glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
-                    glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
-                
+                    glColor3f(0.8, 0.2, 0.0);
                     glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
                     glScalef(0.5, 1, 0.5);
                     glutSolidCube(0.2);
                 glPopMatrix();
                 /* Krosnja */
                 glPushMatrix();
-                    diffuse_coeffs[0] = 0.2;
-                    diffuse_coeffs[1] = 0.8;
-                    diffuse_coeffs[2] = 0.1;
-                    
-                    ambient_coeffs[0] = 0.6;
-                    ambient_coeffs[1] = 0.7;
-                    ambient_coeffs[2] = 0.6;
-      
-                    glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
-                    glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
-                    
+                
+                    glColor3f(0, 0.8, 0.2);
                     glTranslatef(((float)j/10.0)*2.0, 0.2, ((float)i/10.0)*2.0);
                     glScalef(1.1, 1.5, 1.1);
                     
@@ -639,14 +613,7 @@ static void on_display(void){
                     glDisable(GL_CLIP_PLANE0);
                 glPopMatrix();
                 glPushMatrix();
-                    diffuse_coeffs[0] = 0.2;
-                    diffuse_coeffs[1] = 0.7;
-                    diffuse_coeffs[2] = 0.1;
-                    
-                    ambient_coeffs[0] = 0.4;
-                    ambient_coeffs[1] = 0.4;
-                    ambient_coeffs[2] = 0.4;
-      
+                    glColor3f(0, 0.6, 0.2);
                     glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
                     glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
                     
@@ -664,17 +631,7 @@ static void on_display(void){
             /* Vrata */
             else if(matrix[i][j] == 7){
                 glPushMatrix();
-                    diffuse_coeffs[0] = 0.4;
-                    diffuse_coeffs[1] = 1;
-                    diffuse_coeffs[2] = 0.5;
-                    
-                    ambient_coeffs[0] = 0.9;
-                    ambient_coeffs[1] = 1;
-                    ambient_coeffs[2] = 0.9;
-      
-                    glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
-                    glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
-     
+                    glColor3f(1, 0.1, 0);
                     glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
                     glScalef(1.5, 2.2, 0.25);
                     glutSolidCube(0.1);
@@ -684,17 +641,7 @@ static void on_display(void){
             /* Kljuc koji otvara vrata */
             else if(matrix[i][j] == 8){
                 glPushMatrix();
-                    diffuse_coeffs[0] = 0.4;
-                    diffuse_coeffs[1] = 1;
-                    diffuse_coeffs[2] = 0.5;
-                    
-                    ambient_coeffs[0] = 0.9;
-                    ambient_coeffs[1] = 1;
-                    ambient_coeffs[2] = 0.9;
-      
-                    glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
-                    glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
-     
+                    glColor3f(1, 0.1, 0);
                     glTranslatef(((float)j/10.0)*2.0, 0.1, ((float)i/10.0)*2.0);
                     glRotatef(rotation, 1, 1, 0);
                     glutSolidCube(0.1);
@@ -703,7 +650,6 @@ static void on_display(void){
             }
             else 
                 continue;
-            
         }
     }
     glTranslatef(1.1, -0.1, 1.05);
@@ -719,13 +665,4 @@ static void init_lights(){
     glLightfv(GL_LIGHT0, GL_AMBIENT, light_ambient);
     glLightfv(GL_LIGHT0, GL_DIFFUSE, light_diffuse);
     glLightfv(GL_LIGHT0, GL_SPECULAR, light_specular);
-}
-
-
-static void set_material(){
-    /* Podesavaju se parametri materijala. */
-    glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_coeffs);
-    glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_coeffs);
-    glMaterialfv(GL_FRONT, GL_SPECULAR, specular_coeffs);
-    glMaterialf(GL_FRONT, GL_SHININESS, shininess);
 }

@@ -1,5 +1,5 @@
-#ifndef LIGHT_H
-#define LIGHT_H
+#ifndef LIGHTS_H
+#define LIGHTS_H
 #include <GL/glut.h>
 
 /* Koeficijenti svetla */
@@ -13,5 +13,6 @@ GLfloat ambient_coeffs[] = {0, 0, 0, 1};
 GLfloat diffuse_coeffs[] = {0, 0, 0, 1};
 GLfloat specular_coeffs[] = {0, 0, 0, 1};
 GLfloat shininess = 20;
+
 
 #endif
