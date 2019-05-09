@@ -17,7 +17,7 @@ static void error(char* str, int lineNum){
 /* Matrica koja cuva poligon i neophodne fje i informacije za matricu */
 static int **matrix;
 static int n, m, tren_i, tren_j;
-static int indikator = 0;
+static int indikator = 4;
 static void readMatrix(void);
 static void allocMatrix(void);
 static void freeMatrix(void);
@@ -401,7 +401,7 @@ static void on_reshape(int width, int height){
     /* Podesava se projekcija */
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(90, (float) width/height, 1, 150);
+    gluPerspective(90, (float) width/height, 1, 250);
 }
 
 static void on_display(void){
@@ -563,38 +563,60 @@ static void on_display(void){
                         
                     glPopMatrix();
                 }
+                else if(matrix[i][j] == 9){
+                    /* Stablo */
+                    glPushMatrix();
+                        glColor3f(0.8, 0.2, 0.0);
+                        glTranslatef(((float)j/10.0)*2, 0, ((float)i/10.0)*2);
+                        glScalef(0.5, 1, 0.5);
+                        glutSolidCube(0.15);
+                    glPopMatrix();
+                    /* Krosnja */
+                    glPushMatrix();
+                        glColor3f(0, 0.3, 0.1);
+                        glTranslatef(((float)j/10.0)*2.0, 0.1, ((float)i/10.0)*2.0);
+                        glRotatef(90,-1,0,0);
+                        
+                        glutSolidCone(0.2, 0.6, 10,10);
+                        
+                        glDisable(GL_CLIP_PLANE0);
+                    glPopMatrix();
+                }
                 else 
                     continue;
             }
         }
         glTranslatef(1.1, -0.1, 1.05);
     }
+    /* The end - postavlja se zavrsna tekstura */
     else{
+        /* Podesavase vidna tacka */
         glLoadIdentity();
         gluLookAt(-1, 0, 0, 
                    0, 0, 0, 
                    0, 1, 0);
-        glTranslatef(0,-70,0);
+        /* Transliramo i skaliramo teksturu kako bi bila na sredini i preko celog ekrana */
+        glTranslatef(0,-50,0);
+        glScalef(0.8,1,1.5);
         glEnable(GL_TEXTURE_2D);
         glBindTexture(GL_TEXTURE_2D, end);
         glBegin(GL_QUADS);
             glNormal3f(1, -1, 1);
 
             glTexCoord2f(0, 0);
-            glVertex3f(90, 0, -90);
+            glVertex3f(50, 0, -50);
  
             glTexCoord2f(1, 0);
-            glVertex3f(90, 0, 90);
+            glVertex3f(50, 0, 50);
    
-           glTexCoord2f(1, 1);
-           glVertex3f(90, 140, 90);
+            glTexCoord2f(1, 1);
+            glVertex3f(50, 100, 50);
 
-           glTexCoord2f(0, 1);
-           glVertex3f(90, 140, -90);
+            glTexCoord2f(0, 1);
+            glVertex3f(50, 100, -50);
         glEnd();
         glDisable(GL_TEXTURE_2D);
         glEnable(GL_COLOR_MATERIAL);
-        glClearColor(0, 0, 0, 0);
     }
     
     /* Nova slika se salje na ekran. */
