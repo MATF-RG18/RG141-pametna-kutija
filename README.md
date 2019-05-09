@@ -24,7 +24,8 @@ make
 ```
 
 **Komande:**
-:arrow_up:
-:arrow_down:
-:arrow_left:
-:arrow_right:
+   - :arrow_up: napred
+   - :arrow_down: nazad
+   - :arrow_left: levo
+   - :arrow_right: desno
+    
