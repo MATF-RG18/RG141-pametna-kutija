@@ -1,6 +1,6 @@
 /* Kod nalik na onom sa casa */
 
-#include"lights.h"
+#include "../header/lights.h"
 
 void init_lights(){
     /* Koeficijenti svetla */

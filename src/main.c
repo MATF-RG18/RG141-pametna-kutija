@@ -2,8 +2,8 @@
 #include<stdlib.h>
 #include<GL/glut.h>
 #include<math.h>
-#include"SOIL.h"
-#include"lights.h"
+#include"../header/SOIL.h"
+#include"../header/lights.h"
 
 static int id = 0;
 
@@ -17,7 +17,7 @@ static void error(char* str, int lineNum){
 /* Matrica koja cuva poligon i neophodne fje i informacije za matricu */
 static int **matrix;
 static int n, m, tren_i, tren_j;
-static int indikator = 4;
+static int indikator = 0;
 static void readMatrix(void);
 static void allocMatrix(void);
 static void freeMatrix(void);
