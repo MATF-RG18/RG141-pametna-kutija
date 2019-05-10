@@ -39,8 +39,9 @@ make
 
 
 **Komande:**
+
    | Tipka | Događaj |
-   | ----- | ------ |
+   | ------ | ------ |
    | :arrow_up: | kretanje napred |
    | :arrow_down: | kretanje nazad |
    | :arrow_left: | kretanje ulevo |
