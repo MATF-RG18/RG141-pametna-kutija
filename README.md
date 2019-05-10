@@ -39,14 +39,14 @@ make
 
 
 **Komande:**
-   Tipka | Događaj 
-   ----- | ------ 
-   :arrow_up: | kretanje napred
-   :arrow_down: | kretanje nazad 
-   :arrow_left: | kretanje ulevo
-   :arrow_right: | kretanje udesno
-   <kbd>R</kbd> | resetovanje programa 
-   <kbd>Esc</kbd> | izlaz iz programa
+   | Tipka | Događaj |
+   | ----- | ------ |
+   | :arrow_up: | kretanje napred |
+   | :arrow_down: | kretanje nazad |
+   | :arrow_left: | kretanje ulevo |
+   | :arrow_right: | kretanje udesno |
+   | <kbd>R</kbd> | resetovanje programa |
+   | <kbd>Esc</kbd> | izlaz iz programa |
 
 
 Za više informacija posetiti: [wiki](https://github.com/MATF-RG18/RG141-pametna-kutija/wiki) stranu projekta.
