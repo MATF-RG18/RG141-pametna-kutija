@@ -33,7 +33,7 @@ static float rotation;         /* Ugao rotacije */
 #define TIMER_ID 0
 static int timer_active = 1;
 /* Teksture, inicijalizacija, promenljiva koja cuva  t. */
-GLuint name, end;
+GLuint flower, end;
 void init_tex();
 
 /* Deklaracije callback funkcija. */
@@ -364,12 +364,15 @@ static void on_keyboard(unsigned char key, int x, int y){
     switch (key) {
         /* restart */
         case 'r':
-            anim_param = 0;
-            anim_param1 = 0;
-            anim_param2 = 0;
-            readMatrix();
-            
-            glutPostRedisplay();
+            if(id != 1){
+                anim_param = 0;
+                anim_param1 = 0;
+                anim_param2 = 0;
+                readMatrix();
+                
+                glutPostRedisplay();
+                
+            }
             break;
         /* Zavrsava se program */
         case 27:
@@ -421,7 +424,7 @@ static void on_display(void){
     if(id == 0){
         glTranslatef(0, 0, 0.15);
         glEnable(GL_TEXTURE_2D);
-        glBindTexture(GL_TEXTURE_2D, name);
+        glBindTexture(GL_TEXTURE_2D, flower);
         glBegin(GL_QUADS);
             glNormal3f(0, 1, 0);
 
@@ -640,27 +643,27 @@ static void allocMatrix(void){
 static void readMatrix(void){
     FILE* f;
     if(indikator == 0){
-        f = fopen("./Matrice/matrica1.txt", "r"); 
+        f = fopen("./Matrix/matrica1.txt", "r"); 
         if(f == NULL)
             ERROR("Citanje matrice");
     }
     else if(indikator == 1){
-        f = fopen("./Matrice/matrica2.txt", "r"); 
+        f = fopen("./Matrix/matrica2.txt", "r"); 
         if(f == NULL)
             ERROR("Citanje matrice");
     }
     else if(indikator == 2){
-        f = fopen("./Matrice/matrica3.txt", "r"); 
+        f = fopen("./Matrix/matrica3.txt", "r"); 
         if(f == NULL)
             ERROR("Citanje matrice");
     }
     else if(indikator == 3){
-        f = fopen("./Matrice/matrica4.txt", "r"); 
+        f = fopen("./Matrix/matrica4.txt", "r"); 
         if(f == NULL)
             ERROR("Citanje matrice");
     }
     else if(indikator == 4){
-        f = fopen("./Matrice/matrica5.txt", "r"); 
+        f = fopen("./Matrix/matrica5.txt", "r"); 
         if(f == NULL)
             ERROR("Citanje matrice");
     }
@@ -695,17 +698,17 @@ void init_tex(){
     glEnable(GL_TEXTURE_2D);
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
-    name = SOIL_load_OGL_texture("./Teksture/cvece.png", 
+    flower = SOIL_load_OGL_texture("./Texture/cvece.png", 
                                 SOIL_LOAD_AUTO, 
                                 SOIL_CREATE_NEW_ID, 
                                 SOIL_FLAG_INVERT_Y);
     /* U slucaju da ucitavanje strukture nije uspelo, ispisati vrstu greske i prekinuti program */
-    if(name == 0){
+    if(flower == 0){
         printf("%s\n", SOIL_last_result());
         ERROR("Nije ucitana tekstura");
     }
 
-    glBindTexture(GL_TEXTURE_2D, name);
+    glBindTexture(GL_TEXTURE_2D, flower);
     glTexParameteri(GL_TEXTURE_2D,
                     GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameteri(GL_TEXTURE_2D,
@@ -721,7 +724,7 @@ void init_tex(){
               GL_TEXTURE_ENV_MODE, 
               GL_REPLACE);
 
-    end = SOIL_load_OGL_texture("./Teksture/theend.png", 
+    end = SOIL_load_OGL_texture("./Texture/theend.png", 
                                 SOIL_LOAD_AUTO, 
                                 SOIL_CREATE_NEW_ID, 
                                 SOIL_FLAG_INVERT_Y);
