@@ -33,7 +33,7 @@ static float rotation;         /* Ugao rotacije */
 #define TIMER_ID 0
 static int timer_active = 1;
 /* Teksture, inicijalizacija, promenljiva koja cuva  t. */
-GLuint flower, end;
+GLuint flower, end, sky;
 void init_tex();
 
 /* Deklaracije callback funkcija. */
@@ -440,10 +440,34 @@ static void on_display(void){
             glTexCoord2f(0, 5);
             glVertex3f(-2.0*m/10.0, 0, -2.0*n/10.0);
         glEnd();
+        glTranslatef(0, 0, -0.15);
+        
+        glTranslatef(10, -9, -10);
+        glRotatef(-30, 0,1,0);
+        glRotatef(50, 1,0,0);
+        glBindTexture(GL_TEXTURE_2D, sky);
+        glBegin(GL_QUADS);
+            glNormal3f(1, -1, 1);
+
+            glTexCoord2f(0, 0);
+            glVertex3f(-50.0, 0, 50.0);
+
+            glTexCoord2f(3, 0);
+            glVertex3f(50.0, 0, 50.0);
+
+            glTexCoord2f(3, 3);
+            glVertex3f(50.0, 0, -50.0);
+
+            glTexCoord2f(0, 3);
+            glVertex3f(-50.0, 0, -50.0);
+        glEnd();
+        glRotatef(-50, 1,0,0);
+        glRotatef(30, 0,1,0);
+        glTranslatef(-10, 9, 10);
         glDisable(GL_TEXTURE_2D);
         glEnable(GL_COLOR_MATERIAL);
         
-        glTranslatef(0, 0, -0.15);
+        
         /* Transliramo mapu */
         glScalef(1.6, 1.6, 1.6);
         glTranslatef(-1.1, 0.1, -1.05);
@@ -695,6 +719,7 @@ static void freeMatrix(void){
 
 /* Tekstura */
 void init_tex(){
+    /* CVECE - tekstura */
     glEnable(GL_TEXTURE_2D);
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
@@ -720,6 +745,32 @@ void init_tex(){
     glBindTexture(GL_TEXTURE_2D, 0);
     
     
+    /* DUGA - tekstura */
+    glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
+
+    sky = SOIL_load_OGL_texture("./Texture/sky.png", 
+                                SOIL_LOAD_AUTO, 
+                                SOIL_CREATE_NEW_ID, 
+                                SOIL_FLAG_INVERT_Y);
+    /* U slucaju da ucitavanje strukture nije uspelo, ispisati vrstu greske i prekinuti program */
+    if(sky == 0){
+        printf("%s\n", SOIL_last_result());
+        ERROR("Nije ucitana tekstura - sky");
+    }
+
+    glBindTexture(GL_TEXTURE_2D, sky);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_WRAP_S, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D,
+                    GL_TEXTURE_WRAP_T, GL_REPEAT);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+
+    /* Iskljucujemo aktivnu teksturu */
+    glBindTexture(GL_TEXTURE_2D, 0);
+    
+    
+    /* Kraj igrice - pozadina */
     glTexEnvf(GL_TEXTURE_ENV, 
               GL_TEXTURE_ENV_MODE, 
               GL_REPLACE);
