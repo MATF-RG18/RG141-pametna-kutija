@@ -1,3 +1,6 @@
+/* Student:  Lea Petkovic 163/2016
+   Naziv projekta: Pametna kutija
+   Predmet: Racunarska grafika */
 #include<stdio.h>
 #include<stdlib.h>
 #include<GL/glut.h>
@@ -5,6 +8,7 @@
 #include"../header/SOIL.h"
 #include"../header/lights.h"
 
+/* Indikator koji govori da li je predjen poslednji nivo */
 static int id = 0;
 
 /* Funkcija za obradu gresaka i njen makro */
@@ -22,17 +26,17 @@ static void readMatrix(void);
 static void allocMatrix(void);
 static void freeMatrix(void);
 
-/* Globalne promenljive, u svrhe animacija i kretanja kamere */
+/* Globalne promenljive, u svrhu animacije i kretanja kamere */
 static float anim_param = 0;   /* Kretanje plocice */
 static float anim_param1 = 0;  /* Pomeranje kamere */
 static float anim_param2 = 0;  /* Pomeranje kamere */
 static float rotation;         /* Ugao rotacije */
 
-/* Makroi ya tajmer i fleg koji odredjuje stanje tajmera. */
+/* Makroi za tajmer i fleg koji odredjuje stanje tajmera */
 #define TIMER_INTERVAL 50
 #define TIMER_ID 0
 static int timer_active = 1;
-/* Teksture, inicijalizacija, promenljiva koja cuva  t. */
+/* Teksture, inicijalizacija, promenljive koje cuvaju  teksture */
 GLuint flower, end, sky;
 void init_tex();
 
@@ -67,9 +71,9 @@ int main(int argc, char **argv){
     /* Ukljucujemo normalizaciju vektora normala */
     glEnable(GL_NORMALIZE);
     
-    /* Poligon prvog nivoa */
+    /* Fja generise poligon, prvi nivo */
     readMatrix();
-    /* Inicijalizujemo teksturu */
+    /* Inicijalizujemo teksture */
     init_tex();
     /* Program ulazi u glavnu petlju */
     glutMainLoop();
@@ -360,6 +364,7 @@ static void on_keyboard_special(int key, int x, int y){
     }
 }
 
+/* Resetovanje i izlaz iz programa putem tastature */
 static void on_keyboard(unsigned char key, int x, int y){
     switch (key) {
         /* restart */
@@ -408,6 +413,7 @@ static void on_reshape(int width, int height){
 }
 
 static void on_display(void){
+    /* Full screen mode */
     glutFullScreen();
     /*Brise se prethodni sadrzaj prozora */ 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -421,9 +427,12 @@ static void on_display(void){
     init_lights();
     glShadeModel(GL_SMOOTH);
 
+    /* Ako jos nisu predjeni svi nivoi, iscrtava se tekuci */
     if(id == 0){
         glTranslatef(0, 0, 0.15);
+        /* Omogucavamo teksture */
         glEnable(GL_TEXTURE_2D);
+        /* Cvece za podijum */
         glBindTexture(GL_TEXTURE_2D, flower);
         glBegin(GL_QUADS);
             glNormal3f(0, 1, 0);
@@ -442,6 +451,7 @@ static void on_display(void){
         glEnd();
         glTranslatef(0, 0, -0.15);
         
+        /* POzadina, nebo */
         glTranslatef(10, -9, -10);
         glRotatef(-30, 0,1,0);
         glRotatef(50, 1,0,0);
@@ -467,12 +477,9 @@ static void on_display(void){
         glDisable(GL_TEXTURE_2D);
         glEnable(GL_COLOR_MATERIAL);
         
-        
-        /* Transliramo mapu */
+        /* Transliramo i skaliramo poligon, kako bi bio na sredini ekrana, vidne tacke */
         glScalef(1.6, 1.6, 1.6);
         glTranslatef(-1.1, 0.1, -1.05);
-        /*glColor3f(0.5, 0, 0.5);
-        plot_function();*/
         
         /* Iscrtavamo mapu/teren pomocu matrice */
         for(int i=0; i<n; i++){
@@ -498,7 +505,6 @@ static void on_display(void){
                 /* Cilj */
                 else if(matrix[i][j] == 3){
                     glPushMatrix();
-                        /* TODO */
                         glColor3f(1, 1, 0);
                         glTranslatef(((float)j/10.0)*2.0, 0, ((float)i/10.0)*2.0);
                         glRotatef(rotation, 0, 1, 0);
@@ -645,7 +651,6 @@ static void on_display(void){
         glDisable(GL_TEXTURE_2D);
         glEnable(GL_COLOR_MATERIAL);
     }
-    
     /* Nova slika se salje na ekran. */
     glutSwapBuffers();
 }
@@ -717,9 +722,9 @@ static void freeMatrix(void){
     free(matrix);
 }
 
-/* Tekstura */
+/* Inicijalizacija tekstura */
 void init_tex(){
-    /* CVECE - tekstura */
+    /* Inicijalizuje se tekstura sa cvecem */
     glEnable(GL_TEXTURE_2D);
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
@@ -744,8 +749,7 @@ void init_tex(){
     /* Iskljucujemo aktivnu teksturu */
     glBindTexture(GL_TEXTURE_2D, 0);
     
-    
-    /* DUGA - tekstura */
+    /* DUGA - inicijalizacija teksture */
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
     sky = SOIL_load_OGL_texture("./Texture/sky.png", 
@@ -770,7 +774,7 @@ void init_tex(){
     glBindTexture(GL_TEXTURE_2D, 0);
     
     
-    /* Kraj igrice - pozadina */
+    /* Kraj igrice - inicijalizacija teksture */
     glTexEnvf(GL_TEXTURE_ENV, 
               GL_TEXTURE_ENV_MODE, 
               GL_REPLACE);

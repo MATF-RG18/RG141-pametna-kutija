@@ -1,5 +1,4 @@
-/* Kod nalik na onom sa casa */
-
+/* Kod nalik koriscenog na vezbama */
 #include "../header/lights.h"
 
 void init_lights(){
