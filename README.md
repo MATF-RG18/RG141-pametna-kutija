@@ -1,6 +1,6 @@
 ## RG141-pametna-kutija
 
-**Pametna kutija :package:**
+###Pametna kutija :package:
 
 Projekat na kursu Računarska grafika, na Matematičkom fakultetu. 
 Korisnik upravlja (plavom) kutijom koja se na komande tastature kreće po poligonu sa namerom uspešnog dolaska do cilja. Igrač mora pametno da gura druge (ruzičaste) kutije koje se nađu na putu do cilja.
