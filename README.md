@@ -18,7 +18,7 @@ Za učitavanje tekstura korišćena je biblioteka [SOIL](http://www.lonesock.net
 sudo apt-get install libsoil-dev
 ```
 
-**Projekat uključuje:** 
+**Projekat uključuje:** :pencil:
    - crtanje primitiva
    - proveru dubine
    - osvetljenje
