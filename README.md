@@ -29,7 +29,7 @@ sudo apt-get install libsoil-dev
    - obradu kolizija
    - …
 
-**Pokretanje:**
+**Pokretanje:** :computer:
 ```
 make
 ```
@@ -38,7 +38,7 @@ make
 ```
 
 
-**Komande:**
+**Komande:** :video_game:
 
    | Tipka | Događaj |
    | ------ | ------ |
