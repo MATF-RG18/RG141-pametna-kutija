@@ -749,7 +749,7 @@ void init_tex(){
     /* Iskljucujemo aktivnu teksturu */
     glBindTexture(GL_TEXTURE_2D, 0);
     
-    /* DUGA - inicijalizacija teksture */
+    /* Nebo - inicijalizacija teksture */
     glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_REPLACE);
 
     sky = SOIL_load_OGL_texture("./Texture/sky.png", 
